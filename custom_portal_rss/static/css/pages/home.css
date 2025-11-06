@@ -1,0 +1,371 @@
+header {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--my-white-off);
+    width: 100%;
+    box-shadow: var(--shadow-all-lg);
+    background-color: var(--my-primary-color);
+}
+
+header .right .user-img img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 4px solid var(--my-white);
+    box-shadow: var(--shadow-all-sm);
+}
+
+
+main {
+    background-color: var(--my-white);
+}
+
+
+
+
+/*******************************  For Main Page Here  ************************* */
+/* Home page box wrapper Here */
+.box-wrapper .card {
+    background-color: var(--my-white-off);
+    padding: 20px;
+    border: 1px solid var(--my-border-secondary);
+    border-radius: var(--radius-xl);
+}
+
+.common-table {
+    background-color: var(--my-white);
+    width: 100%;
+    border-radius: var(--radius-md);
+    padding: 12px;
+}
+
+.common-table table {
+    width: 100%;
+}
+
+.common-table table tbody tr {
+    border-bottom: 1px solid var(--my-border-secondary);
+}
+
+
+
+.common-table table tbody tr:nth-child(odd) {
+    background-color: var(--my-bg-secondary);
+}
+
+.common-table table tbody tr:hover {
+    /* background-color: var(--my-border-secondary); */
+}
+
+.common-table thead th {
+    font-weight: var(--fw-600);
+    text-align: left;
+    padding: 12px 8px;
+    color: var(--my-text-primary);
+}
+
+.common-table td {
+    padding: 5px 8px;
+}
+
+
+.common-table .open-btn {
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+}
+
+.common-table a.name {
+    font-weight: var(--fw-500);
+}
+
+.common-table a.name:hover {
+    color: var(--my-blue);
+}
+
+
+
+/* Status Here */
+.status {
+    padding: 2px 8px;
+    font-size: var(--fs-xs);
+    line-height: var(--line-height-sm);
+    text-transform: capitalize;
+    border: 1px solid var(--my-border-secondary);
+    font-weight: var(--fw-500);
+}
+
+.status.progress {
+    background-color: var(--my-warring);
+    color: var(--my-white);
+}
+
+.status.done {
+    background-color: var(--my-green);
+    color: var(--my-white-off);
+    background-color: green;
+    opacity: .75;
+}
+
+.status.open {
+    background-color: var(--my-border-secondary);
+    background-color: var(--input-focus);
+    color: var(--my-text-secondary);
+    opacity: .9;
+    border: 1px solid var(--my-border-primary);
+}
+
+.status.delivered {
+    background-color: green;
+    color: var(--my-white);
+}
+
+.pagination {
+    background-color: var(--my-white);
+    border-radius: var(--radius-md);
+    margin-top: 20px;
+}
+
+
+
+
+
+/*******************************  For Form View Page  ************************* */
+.form-view-main {
+    padding-bottom: 20px;
+}
+
+.form-view {
+    padding: 20px 20px;
+    /* border: 1px solid var(--my-border-secondary); */
+    border-radius: var(--radius-xl);
+    padding-top: 16px;
+    background-color: #f1f1f1;
+    border:4px solid #ededed;
+    /* box-shadow: var(--shadow-md); */
+}
+
+.form-view form {
+    row-gap: 32px;
+}
+
+.form-view .my-input-control {
+    background-color: var(--my-white);
+    padding: 16px;
+    border-radius: var(--radius-md);
+}
+
+.form-view .my-input-control input,textarea {
+    padding: 10px 12px;
+    color: #555;
+    border-color: var(--my-border-primary);
+    font-weight:500 !important;
+}
+select{background:white}
+.form-view .my-input-control select {
+    border-color: var(--my-border-primary);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+}
+
+.form-view .my-grid-2 {
+    row-gap: 32px;
+}
+
+.form-view .my-input-control input::placeholder,
+.form-view textarea::placeholder {
+    opacity: .7;
+    font-size: 13px !important;
+}
+
+.form-view .my-input-control .label {
+    font-weight: var(--fw-500);
+    font-size: var(--fs-sm);
+    color: #444;
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+}
+
+.form-view .my-input-control label {
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.form-view .my-input-control .required {
+    color: var(--my-blue2);
+}
+
+
+.status-wrapper {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    /* background-color: var(--my-primary-color); */
+    border-radius: var(--radius-xl);
+    padding: 4px;
+}
+
+/* status-area */
+.status-area {
+    background-color: var(--my-white);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--my-gray);
+    border-radius: 8px;
+    margin-top: 0;
+}
+
+.status-area .status {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 0;
+    font-size: var(--fs-sm);
+    color: var(--my-gray);
+    opacity: 1;
+    cursor: unset;
+    border: none;
+    border-right: 1px solid var(--my-gray);
+}
+
+.status.progress {
+    background-color: var(--my-warring);
+    color: var(--my-white);
+}
+
+.status.done {
+    background-color: var(--my-green);
+    color: var(--my-white-off);
+    background-color: green;
+    opacity: .75;
+}
+
+.status.open {
+    background-color: var(--my-border-secondary);
+    background-color: var(--input-focus);
+    color: var(--my-text-secondary);
+    opacity: .9;
+    border: 1px solid var(--my-border-primary);
+}
+
+.status.delivered {
+    background-color: green;
+    color: var(--my-white);
+}
+
+.status-area li:last-child {
+    border-right: none;
+}
+
+
+.file-name-display {
+    margin-top: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+.file-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.file-list li {
+    background: #e9ecef;
+    margin: 4px 0;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.show-uploaded-file {
+    display: none;
+}
+
+.show-uploaded-file.active {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    background-color: var(--my-white);
+    /* padding: 8px 12px; */
+    border-radius: var(--radius-lg);
+    margin-top: 4px;
+}
+
+
+.form-view .my-input-control input, textarea {
+    padding: 10px 12px;
+    color: #555;
+    border-color: var(--my-border-primary);
+    font-weight: 500 !important;
+}
+.form-view .my-input-control.color-picker-field input{
+    padding:0 !important;
+    max-width:100px;
+    margin-top:4px;
+}
+
+
+.form-view select {
+    color: var(--my-primary-color);
+}
+
+
+.notification-box {
+    position: fixed;
+    top: 20px;
+    right: -400px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: all 0.5s ease;
+    border: 1px solid var(--my-border-primary);
+    z-index: 2;
+    background-color: var(--my-white);
+    color: var(--my-primary-color);
+}
+
+
+@keyframes slideInRight {
+    0% {
+        right: -200px;
+        opacity: 0;
+    }
+
+    100% {
+        right: 00px;
+        opacity: 1;
+    }
+}
+
+.notification-box.active {
+    animation: slideInRight 0.6s ease forwards;
+    right: 20px;
+    opacity: 1;
+}
+
+
+
+
+footer {
+    background-color: var(--my-primary-color);
+    text-align: center;
+    padding: 12px;
+    color: var(--my-white-off);
+    margin-top: 12px;
+}
+
+footer a {
+    color: var(--my-warring);
+    font-weight: var(--fw-600);
+}
+
+footer .gold {
+    color: yellow;
+}
+

@@ -1,0 +1,503 @@
+<odoo>
+    <template id="portal_form_view_page" name="Portal Form View Page">
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/global_css/global.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/custom_class.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/my_component.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css"/>
+        <!--=========================================-->
+        <!-- =========  Header Start Here  ========= -->
+        <!--=========================================-->
+        <header>
+            <div class="header-wrapper my-container my-flex-between">
+                <a href="">
+                    <h1 class="left my-fs-xxl my-text-white">RSS</h1>
+                </a>
+
+                <div class="right">
+                    <div class="user-img">
+                        <img t-att-src="'/web/image/res.users/%d/avatar_128' % request.env.user.id"
+                                class="user-avatar"
+                             alt="user image" loading="lazy"/>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!--===============================================-->
+        <!-- =========  Main Content Start Here  ========= -->
+        <!--===============================================-->
+        <main class="my-flex-column flex-1 form-view-main">
+            <section class="my-flex-column flex-1 my-container">
+                <style>
+                    .notification-box {
+                    background: #e6ffed;
+                    border: 1px solid #00b74a;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    width: fit-content;
+                    margin: 10px;
+                    opacity: 1;
+                    transition: opacity 0.5s ease;
+                    }
+                    .notification-box.active {
+                    opacity: 1;
+                    }
+
+
+                    .error-message-new {
+                    display: none;
+                    color: red;
+                    font-size: 12px;
+                    }
+                </style>
+
+
+
+               <div class="my-flex-between my-my-20">
+                    <div>
+                      <a href="/rss/task/list" class="my-btn my-primary-btn"><span class="content"><i class="ri-arrow-left-line"> </i></span></a>
+                     </div>
+                    <!--======== Status Here ==========-->
+                    <div class="status-wrapper">
+                        <!--                    <ul class="my-mt-12 my-flex-center status-area">-->
+                        <!--                        <t t-foreach="stages" t-as="stage">-->
+                        <!--                            <li class="status"-->
+                        <!--                                t-att-class="'status ' + ('progress' if task_view.stage_id.id == stage.id else '')">-->
+                        <!--                                <t t-esc="stage.name"/>-->
+                        <!--                            </li>-->
+                        <!--                        </t>-->
+                        <!--                    </ul>-->
+                        <ul class="my-mt-12 my-flex-center status-area">
+                            <li class="status"
+                                t-att-class="'status ' + ('open' if task_view.stage_id.name == 'Open' else '')">
+                                Open
+                            </li>
+                            <li class="status"
+                                t-att-class="'status ' + ('progress' if task_view.stage_id.name == 'In Progress' else '')">
+                                Progress
+                            </li>
+                            <li class="status"
+                                t-att-class="'status ' + ('done' if task_view.stage_id.name == 'Done' else '')">
+                                Done
+                            </li>
+                            <li class="status"
+                                t-att-class="'status ' + ('delivered' if task_view.stage_id.name == 'Delivered' else '')">
+                                Delivered
+                            </li>
+                        </ul>
+                    </div>
+               </div>
+
+
+                <!--========= For General info =========-->
+                <div class="form-view ">
+
+
+                    <!-- For General Info -->
+                    <div>
+                        <h3 class="my-text-primary">General Info</h3>
+                        <form action="#" method="post" enctype="multipart/form-data" class=" my-mt-12">
+
+                            <div class="my-grid-2 my-grid-md-1 my-gap-12">
+                                <div class="my-input-control">
+                                    <label class="label">Name
+                                        <span class="required">*</span>
+                                    </label>
+                                    <!--======================= vai jodi error name er class input add koren then error style pabe =========================-->
+                                    <input type="text"
+                                           t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true"
+                                           t-attf-class="my-input-control-input #{'error' if not task_view.name else ''}"
+                                           placeholder="Name" t-att-value="task_view.name"/>
+                                    <small t-if="not task_view.name" class="error-message-new">Error Message</small>
+                                </div>
+
+                                <div class="my-input-control">
+                                    <label class="label">PO Number
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="PO Number" t-att-value="task_view.po.name"/>
+                                    <small t-if="not task_view.po.name" class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+                            <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-16">
+
+                                <div class="my-input-control">
+                                    <label class="label">Vendor
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="Vendor" t-att-value="task_view.vendor_id.name"/>
+                                    <small t-if="not task_view.vendor_id.name" class="error-message-new">Error Message
+                                    </small>
+                                </div>
+                                <div class="my-input-control">
+                                    <label class="label">Buyer Name
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="PO Number" t-att-value="task_view.buyer_id.name"/>
+                                    <small t-if="not task_view.buyer_id.name" class="error-message-new">Error
+                                        Message
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="my-grid-2 my-mt-16">
+                                <div class="my-input-control">
+                                    <label class="label">Assignee</label>
+                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="Assignee" t-att-value="task_view.user_ids.name"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!--========= For Vendor info =========-->
+                <div class="my-mt-12 form-view">
+                    <h3 class="my-text-primary">Vendor Info</h3>
+                    <form  action="/rss/vendor/task/save" method="post" enctype="multipart/form-data">
+                        <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-12">
+                            <div class="my-input-control file-input">
+                                <label class="label">Dump File
+                                    <span class="required">*</span>
+                                </label>
+                                <input t-att-required="False if task_view.dump_file else True"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                       class="" name="dump_file"
+                                       t-att-value="task_view.dump_file" type="file" placeholder="Name"/>
+                                <t t-if="task_view.dump_file">
+                                    <div class="show-uploaded-file active my-flex-between my-align-center my-mt-2">
+                                        <a t-att-href="'/web/content/%s/%s' % (task_view.id, 'dump_file')"
+                                           target="_blank"
+                                           class="my-text-primary">
+                                            <i class="fa fa-file"></i>
+                                            <t t-esc="task_view.dump_filename or 'Download File'"/>
+                                        </a>
+                                        <t t-if="task_view.dump_filename">
+                                            <span class="file-type my-text-muted">
+                                                (
+                                                <t t-esc="task_view.dump_filename.split('.')[-1].upper()"/>
+                                                file)
+                                            </span>
+                                        </t>
+                                    </div>
+                                </t>
+                                <small class="error-message-new">Error Message</small>
+
+                                <!-- uploaded file here (when active class add then show it) -->
+                                <div class="show-uploaded-file ">
+                                    <p>File Here</p>
+                                </div>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label class="label">Garments File
+                                    <span class="required">*</span>
+                                </label>
+                                <input t-att-required="False if task_view.garments_file else True"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                       type="file" name="garments_file" placeholder="Garments File"/>
+                                <t t-if="task_view.garments_file">
+                                    <div class="show-uploaded-file active my-flex-between my-align-center my-mt-2">
+                                        <a t-att-href="'/web/content/%s/%s' % (task_view.id, 'garments_file')"
+                                           target="_blank"
+                                           class="my-text-primary">
+                                            <i class="fa fa-file"></i>
+                                            <t t-esc="task_view.garments_filename or 'Download File'"/>
+                                        </a>
+                                        <t t-if="task_view.garments_filename">
+                                            <span class="file-type my-text-muted">
+                                                (
+                                                <t t-esc="task_view.garments_filename.split('.')[-1].upper()"/>
+                                                file)
+                                            </span>
+                                        </t>
+                                    </div>
+                                </t>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+                        </div>
+
+                        <div class="my-grid-2 my-gap-12 my-grid-md-1 my-mt-16">
+                            <div class="my-input-control">
+                                <label class="label">Country</label>
+                                <select required="1"  t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"   name="country_id" id="country_id" class="my-select">
+                                    <option value="">Select Country</option>
+                                    <t t-foreach="countries" t-as="c">
+                                        <option t-att-value="c.id"
+
+                                                t-esc="c.name"
+                                                t-att-selected="'selected' if (task_view.country_id and task_view.country_id.id == c.id) else None"/>
+                                    </t>
+                                </select>
+
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+                            <div class="my-input-control">
+                                <label class="label">Brand
+                                    <span class="required">*</span>
+                                </label>
+                                <select required="1"  t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"  name="brand_id" id="brand_id" class="my-select">
+                                    <option value="">Select Brand</option>
+                                    <t t-foreach="brand" t-as="b">
+                                        <option t-att-value="b.id"
+                                                t-esc="b.name"
+                                                t-att-selected="'selected' if (task_view.brand_id and task_view.brand_id.id == b.id) else None"/>
+                                    </t>
+                                </select>
+                                <small t-if="not b.id" class="error-message-new">Error Message</small>
+                            </div>
+                            <div class="my-input-control">
+                                <label class="label">Order Date
+                                    <span class="required">*</span>
+                                </label>
+                                <input required="1"  type="date"
+                                       name="date_deadline"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                       t-att-value="task_view.date_deadline and task_view.date_deadline.strftime('%Y-%m-%d') or ''"
+                                       placeholder="Date Deadline"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label class="label">Ordered Quantity
+                                    <span class="required">*</span>
+                                </label>
+                                <input required="1" type="number"
+                                       name="order_qty"
+                                       min="1"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                       t-att-value="task_view.order_qty or ''"
+                                       placeholder="Ordered Quantity"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label class="label">Style
+                                    <span class="required">*</span>
+                                </label>
+                                <input required="1" type="text"
+                                       name="style"
+                                       min="1"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                       t-att-value="task_view.style or ''"
+                                       placeholder="Style"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label class="label">Reference
+                                    <span class="required">*</span>
+                                </label>
+                                <input required="1" type="text"
+                                       name="ref_no"
+                                       min="1"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                       t-att-value="task_view.ref_no or ''"
+                                       placeholder="Reference"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="color-picker-field my-input-control d-flex align-items-center mb-3">
+                                <label class="label">Color
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                               <div class="my-d-flex my-align-center my-gap-6 my-mt-2">
+                                    <!-- Color Picker -->
+                                <input type="color"
+                                       name="color"
+                                       t-att-value="task_view.color or '#3498db'"
+                                       class="color-input"
+                                       style="cursor: pointer;"
+                                       required="1"
+                                       t-att-disabled="False if request.env.user.has_group('custom_project.group_vendor_user') else True"/>
+
+                                <!-- Color Code Display -->
+                                <input type="text"
+                                       name="color_code_display"
+                                       t-att-value="task_view.color or '#3498db'"
+                                       readonly="1"
+                                       class="color-code ms-3"/>
+                               </div>
+
+                                <small class="error-message-new ms-3">Error Message</small>
+                            </div>
+
+
+                        </div>
+
+
+                        <!--=========  Action Button Here ==========-->
+                        <div class="my-d-flex my-gap-4 my-mt-8 my-justify-end my-w-100-p">
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"  class="my-btn my-primary-btn">
+                                <span class="content">Save</span>
+                            </button>
+                             <input type="hidden" name="task_id" t-att-value="task_view.id"/>
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true" class="my-btn my-btn-danger">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <!--=========== For Layouts Info =============-->
+                <div class="my-mt-12 form-view">
+                    <h3 class="my-text-primary">Layouts</h3>
+                    <form action="/rss/design/task/save" method="post" enctype="multipart/form-data">
+                        <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-12">
+                            <div class="my-input-control ">
+                                <label class="label">Layout File</label>
+                                <input  class="" name="layout_file" t-att-value="task_view.layout_file" type="file" placeholder="Name"/>
+                                <t t-if="task_view.dump_file">
+                                    <div class="show-uploaded-file active my-flex-between my-align-center my-mt-2">
+                                        <a t-att-href="'/web/content/%s/%s' % (task_view.id, 'layout_file')"
+                                           target="_blank"
+                                           class="my-text-primary">
+                                            <i class="fa fa-file"></i>
+                                            <t t-esc="task_view.layout_filename or 'Download File'"/>
+                                        </a>
+                                        <t t-if="task_view.layout_filename">
+                                            <span class="file-type my-text-muted">
+                                                (
+                                                <t t-esc="task_view.layout_filename.split('.')[-1].upper()"/>
+                                                file)
+                                            </span>
+                                        </t>
+                                    </div>
+                                </t>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+                        </div>
+
+
+                        <!--=========  Action Button Here ==========-->
+                        <div class="my-d-flex my-gap-4 my-mt-8 my-justify-end my-w-100-p">
+                            <input type="hidden" name="task_id" t-att-value="task_view.id"/>
+                            <button class="my-btn my-primary-btn">
+                                <span class="content">Save</span>
+                            </button>
+
+                            <button class="my-btn my-btn-danger">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <!--================ For Approval Info ===============-->
+                <div class="my-mt-12 form-view">
+                    <h3 class="my-text-primary">Approval</h3>
+                    <form action="/rss/buyer/task/save" method="post" enctype="multipart/form-data">
+                        <div class="my-grid-2 my-gap-12 my-grid-md-1 my-mt-12">
+                            <div class="my-input-control ">
+                                <label class="label">Approval Status</label>
+                                <select t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" name="state" id="state" class="my-select">
+                                    <option value="">Select Status</option>
+                                    <t t-foreach="state_selection" t-as="s">
+                                        <option t-att-value="s[0]"
+                                                t-esc="s[1]"
+                                                t-att-selected="'selected' if task_view.state == s[0] else None"/>
+                                    </t>
+                                </select>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="my-input-control ">
+                                <label class="label">Approval By</label>
+                                <input t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
+                                       type="text" name="approved_by" placeholder="Approved by"
+                                       t-att-value="task_view.approved_by.name or request.env.user.name if request.env.user.has_group('custom_project.group_buyer_user') else '' " readonly="1"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label class="label">Approval Date</label>
+<!--                                <input type="date" name="approved_date" placeholder="Approved Date"/>-->
+                                <input type="date"
+                                       t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
+                                       name="approved_date"
+                                       t-att-value="task_view.approved_date and task_view.approved_date.strftime('%Y-%m-%d') or ''"
+                                       placeholder="Approved Date"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+                        </div>
+
+                        <div class="my-grid-1 my-mt-16">
+                            <div class="my-input-control">
+                                <label class="label">Note</label>
+                                <textarea t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" name="note" placeholder="Note" id="">
+                                    <t t-esc="task_view.note or ''"/>
+                                </textarea>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+                        </div>
+
+
+                        <!--=========  Action Button Here ==========-->
+                        <div class="my-d-flex my-gap-4 my-mt-12 my-justify-end my-w-100-p">
+                            <input type="hidden" name="task_id" t-att-value="task_view.id"/>
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" class="my-btn my-primary-btn">
+                                <span class="content">Save</span>
+                            </button>
+
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" class="my-btn my-btn-danger">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+
+        <!--===========|| For Notification ||=========-->
+        <!-- if you will active class add then show it -->
+<!--        <div class="notification-box active">-->
+<!--            <div class="content my-fw-medium my-text-primary">Done ✔✔</div>-->
+<!--        </div>-->
+        <div t-if="toast" class="notification-box active" id="notificationBox">
+            <div t-esc="toast_message" class="content my-fw-medium my-text-primary"/>
+        </div>
+
+
+
+        <!-- Footer here -->
+        <footer>
+            <p>Design by <a href="https://www.xsellencebdltd.com/">xsellence bangladesh ltd</a> Odoo
+                <span class="gold">
+                    Gold
+                    Partner
+                </span>
+            </p>
+        </footer>
+
+
+        <!--        <script src="./static/js/main.js"></script>-->
+        <script src="custom_portal_rss/static/js/main.js"></script>
+        <script>
+
+    setTimeout(() => {
+        const box = document.getElementById('notificationBox');
+        if (box) {
+            box.classList.remove('active');
+            box.style.opacity = '0';
+            box.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => box.remove(), 500); // optional: remove from DOM
+        }
+    }, 3000);
+    const colorInput = document.querySelector('input[name="color"]');
+    const codeDisplay = document.querySelector('input[name="color_code_display"]');
+    if (colorInput &amp;&amp; codeDisplay) {
+        colorInput.addEventListener("input", function () {
+            codeDisplay.value = this.value.toUpperCase();
+        });
+    }
+</script>
+
+
+    </template>
+</odoo>

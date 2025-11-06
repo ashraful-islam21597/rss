@@ -1,0 +1,246 @@
+<odoo>
+    <template id="portal_base_page" name="Portal Base Page">
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/global_css/global.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/custom_class.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/my_component.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css"/>
+
+        <header>
+            <div class="header-wrapper my-container my-flex-between">
+                <a href="">
+                    <h1 class="left my-fs-xxl my-text-white">RSS</h1>
+                </a>
+                <div class="right">
+                    <div class="user-img">
+                        <img t-att-src="'/web/image/res.users/%d/avatar_128' % request.env.user.id"
+                             alt="user image" loading="lazy"/>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!--===========|| For Notification ||=========-->
+        <!-- if you will active class add then show it -->
+        <main class="my-flex-column flex-1">
+            <section class="my-flex-column flex-1 my-container">
+                <div class="my-grid-2 my-grid-sm-1 box-wrapper my-gap-12 my-mt-20">
+
+                    <!--========== Left Side Task ===========-->
+                    <div class="pending-task-wrapper card">
+
+                        <!-- BOx Head -->
+                        <!--                        <div class="my-d-flex my-gap-2 my-align-center">-->
+                        <!--                            <h2 class="my-fs-xl my-text-primary">Pending Task</h2>-->
+                        <!--                            <span class="my-fs-xs">(220)</span>-->
+                        <!--                        </div>-->
+                        <div class="my-d-flex my-gap-2 my-align-center">
+                            <h2 class="my-fs-xl my-text-primary">Pending Task</h2>
+                            <span class="my-fs-sm my-text-muted fw-semibold">(<t t-esc="pending_tasks_count"/>)
+                            </span>
+                        </div>
+
+
+                        <!-- Table Here -->
+                        <div class="common-table my-mt-8">
+                            <table class="">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Open</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    <tr class="list-data-open" t-attf-href="/rss/task/list/{{line.id}}"
+                                        t-foreach="pending_tasks" t-as="line">
+                                        <td>
+                                            <a class="name" t-attf-href="/rss/task/list/{{line.id}}"
+                                               t-field="line.name"/>
+                                        </td>
+                                        <td>
+<!--                                            <div t-attf-class="status #{line.state.replace('01_in_', '').replace('02_', '').replace('03_', '').replace('1_', '').replace('04_', '')}">-->
+<!--                                                <t t-if="line.state == '01_in_progress'">In Progress</t>-->
+<!--                                                <t t-elif="line.state == '1_done'">Done</t>-->
+<!--                                                <t t-elif="line.state == '03_approved'">Approved</t>-->
+<!--                                                <t t-elif="line.state == '02_changes_requested'">Changes Requested</t>-->
+<!--                                                <t t-elif="line.state == '04_waiting_normal'">Waiting</t>-->
+<!--                                                <t t-else="">Other</t>-->
+<!--                                            </div>-->
+                                            <div t-attf-class="status #{line.stage_id.name.replace('Open', 'open').replace('In Progress', 'progress').replace('Done', 'done').replace('delivered', 'Delivered')}">
+                                                <t t-if="line.stage_id.name == 'Open'">Open</t>
+                                                <t t-if="line.stage_id.name == 'In Progress'">In Progress</t>
+                                                <t t-elif="line.stage_id.name == 'Done'">Done</t>
+                                                <t t-elif="line.stage_id.name == 'Delivered'">Delivered</t>
+<!--                                                <t t-elif="line.state == '02_changes_requested'">Changes Requested</t>-->
+<!--                                                <t t-elif="line.state == '04_waiting_normal'">Waiting</t>-->
+<!--                                                <t t-else="">Other</t>-->
+                                            </div>
+
+
+                                            <!--======  All status here  ========-->
+                                            <!--
+                                                    <div class="status progress">Progress</div>
+                                                    <div class="status done">Done</div>
+                                                    <div class="status delivered">delivered</div>
+                                                    <div class="status open">open</div>
+                                                -->
+                                        </td>
+                                        <td>
+                                            <a t-attf-href="/rss/task/list/{{line.id}}"
+                                               class="my-btn my-primary-btn open-btn">
+                                                <div class="content">
+                                                    <i class="ri-eye-line"></i>
+                                                </div>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        <!--==============||  Pagination Here ||============-->
+                        <div class="pagination my-p-8 my-gap-6 my-mt-4 my-flex-between" role="navigation"
+                             aria-label="Pagination">
+                            <button class="prev disabled" disabled="" aria-label="Go to previous page">
+                                <i
+                                        class="ri-arrow-left-line"></i>
+                                Previous
+                            </button>
+
+                            <!-- pages -->
+                            <div class="pages my-d-flex my-gap-2">
+                                <button class="page active" aria-current="page" aria-label="Page 1">1</button>
+                                <button class="page" aria-label="Page 2">2</button>
+                                <button class="page" aria-label="Page 3">3</button>
+                                <span class="jumper" aria-hidden="true">…</span>
+                                <button class="page" aria-label="Page 6">6</button>
+                                <button class="page" aria-label="Page 7">7</button>
+                                <button class="page" aria-label="Page 8">8</button>
+                            </div>
+
+                            <button class="next" aria-label="Go to next page">Next
+                                <i
+                                        class="ri-arrow-right-line"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!--========== Right Side Card ===========-->
+                    <div class="done-task-wrapper card">
+                        <!-- BOx Head -->
+                        <!--                        <div class="my-d-flex my-gap-2 my-align-center">-->
+                        <!--                            <h2 class="my-fs-xl my-text-primary">Done Task</h2>-->
+                        <!--                            <span class="my-fs-xs">(33)</span>-->
+                        <!--                        </div>-->
+                        <div class="my-d-flex my-gap-2 my-align-center">
+                            <h2 class="my-fs-xl my-text-primary">Done Task
+                            </h2>
+                            <span class="my-fs-sm my-text-muted fw-semibold">(<t t-esc="done_tasks_count"/>)
+                            </span>
+                        </div>
+
+                        <!-- Table Here -->
+                        <div class="common-table my-mt-8">
+                            <table class="">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Open</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr t-attf-href="/rss/task/list/{{line.id}}"
+                                        t-foreach="done_tasks" t-as="line">
+                                        <td>
+                                            <a class="name" t-attf-href="/rss/task/list/{{line.id}}"
+                                               t-field="line.name"/>
+                                        </td>
+                                        <td>
+                                            <div class="status delivered">Done</div>
+                                            <!--======  All status here  ========-->
+                                            <!--
+                                                    <div class="status progress">Progress</div>
+                                                    <div class="status done">Done</div>
+                                                    <div class="status delivered">delivered</div>
+                                                    <div class="status open">open</div>
+                                                -->
+                                        </td>
+                                        <td>
+                                            <a  t-attf-href="/rss/task/list/{{line.id}}" class="my-btn my-primary-btn open-btn">
+                                                <div class="content">
+                                                    <i class="ri-eye-line"></i>
+                                                </div>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        <!--==============||  Pagination Here ||============-->
+                        <div class="pagination my-p-8 my-gap-6 my-mt-4 my-flex-between" role="navigation"
+                             aria-label="Pagination">
+                            <button class="prev disabled" disabled="" aria-label="Go to previous page">
+                                <i
+                                        class="ri-arrow-left-line"></i>
+                                Previous
+                            </button>
+
+                            <!-- pages -->
+                            <div class="pages my-d-flex my-gap-2">
+                                <button class="page active" aria-current="page" aria-label="Page 1">1</button>
+                                <button class="page" aria-label="Page 2">2</button>
+                                <button class="page" aria-label="Page 3">3</button>
+                                <span class="jumper" aria-hidden="true">…</span>
+                                <button class="page" aria-label="Page 6">6</button>
+                                <button class="page" aria-label="Page 7">7</button>
+                                <button class="page" aria-label="Page 8">8</button>
+                            </div>
+
+                            <button class="next" aria-label="Go to next page">Next
+                                <i
+                                        class="ri-arrow-right-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+<!--        <div class="notification-box active">-->
+<!--            <div class="content">Done ✔✔</div>-->
+<!--        </div>-->
+
+
+        <!--============ Footer here =============-->
+
+        <footer>
+            <p>Design by <a href="https://www.xsellencebdltd.com/">xsellence bangladesh ltd</a> Odoo
+                <span class="gold">
+                    Gold
+                    Partner
+                </span>
+            </p>
+        </footer>
+
+
+        <script src="custom_portal_rss/static/js/global_js/main.js"></script>
+        <script src="custom_portal_rss/static/js/main.js"></script>
+        <script>
+
+    setTimeout(() => {
+        const box = document.getElementById('notificationBox');
+        if (box) {
+            box.classList.remove('active');
+            box.style.opacity = '0';
+            box.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => box.remove(), 500); // optional: remove from DOM
+        }
+    }, 3000);
+</script>
+    </template>
+</odoo>
