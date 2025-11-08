@@ -246,7 +246,7 @@
                                                 t-att-selected="'selected' if (task_view.brand_id and task_view.brand_id.id == b.id) else None"/>
                                     </t>
                                 </select>
-                                <small t-if="not b.id" class="error-message-new">Error Message</small>
+                                <small class="error-message-new">Error Message</small>
                             </div>
                             <div class="my-input-control">
                                 <label class="label">Order Date
