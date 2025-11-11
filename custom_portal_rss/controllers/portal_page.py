@@ -1,23 +1,214 @@
 import base64
+from datetime import date, datetime, timedelta
 
 from odoo import http
 from odoo.http import request
+import json
 
 
 class CustomPortal(http.Controller):
 
+    # @http.route(['/rss','/rss/<int:project_id>', '/rss/<int:project_id>/<int:task_id>'], type='http', auth='user',
+    #             website=True)
+    # def custom_portal_base(self, project_id=None, task_id=None, **kw):
+    #     if project_id:
+    #         TaskModel = request.env['project.task'].sudo().search([('project_id', '=', project_id)])
+    #         all_tasks = TaskModel
+    #     else:
+    #         projects = request.env['project.project'].sudo()
+    #         all_projects = projects.search([])
+    #         page_vals = {
+    #             'all_projects': all_projects,
+    #
+    #         }
+    #         return request.render('custom_portal_rss.portal_project_form_view_page',page_vals)
+    #
+    #     countries = request.env['res.country'].sudo().search([])
+    #     brands = request.env['buyer.brand'].sudo().search([])
+    #     po_list = request.env['project.purchase.order'].sudo().search([])
+    #     buyer = request.env['party.buyer'].sudo().search([])
+    #     state_selection = TaskModel._fields['state'].selection
+    #
+    #     page_vals = {
+    #         'countries': countries,
+    #         'brand': brands,
+    #         'po_list': po_list,
+    #         'state_selection': state_selection,
+    #     }
+    #
+    #     if task_id:
+    #         task_view = TaskModel.browse(task_id)
+    #         stages = request.env['project.task.type'].sudo().search([
+    #             ('project_ids', 'in', task_view.project_id.id)
+    #         ])
+    #         state_selection = TaskModel._fields['state'].selection
+    #         page_vals.update({
+    #             'page_title': task_view.name,
+    #             'task_view': task_view,
+    #             'stages': stages,
+    #             'project_id': task_view.project_id.id,
+    #             'countries': countries,
+    #             'brand': brands,
+    #             'buyer': buyer,
+    #             'po_list': po_list,
+    #             'state_selection': state_selection
+    #         })
+    #         return request.render('custom_portal_rss.portal_form_view_page', page_vals)
+    #
+    #     # all_tasks = TaskModel.search([])
+    #     stages = request.env['project.task.type'].sudo().search([])
+    #     page_vals.update({
+    #         'task_list': all_tasks,
+    #         'stages': stages,
+    #         'brands': brands,
+    #         'buyer': buyer,
+    #         'project_id': project_id,
+    #         'pending_tasks': all_tasks.search([('stage_id.name', 'not in', ['Done', 'Delivered'])]),
+    #         'pending_tasks_count': len(all_tasks.search([('stage_id.name', 'not in', ['Done', 'Delivered'])])),
+    #         'done_tasks': all_tasks.search([('stage_id.name', 'in', ['Done', 'Delivered'])]),
+    #         'done_tasks_count': len(all_tasks.search([('stage_id.name', 'in', ['Done', 'Delivered'])])),
+    #     })
+    #
+    #     return request.render('custom_portal_rss.portal_base_page', page_vals)
 
-    @http.route(['/rss/task/list', '/rss/task/list/<int:task_id>'], type='http', auth='user', website=True)
-    def custom_portal_base(self, task_id=None, **kw):
-        TaskModel = request.env['project.task'].sudo()
+
+
+    @http.route('/rss/task/create/<int:project_id>', type='http', methods=['POST'], auth='public', csrf=False, website=True)
+    def create_task(self, project_id=None, **kwargs):
+        project = request.env['project.project'].sudo().browse(project_id)
+        if not project.exists():
+            return request.not_found()
+
+        seq = request.env['ir.sequence'].next_by_code('project.task.custom')
+        task_identifier = f"RSS / {date.today().year} / {seq}"
+
+        delivery_deadline = kwargs.get('delivery_deadline')
+
+        date_deadline = False
+        if delivery_deadline:
+            try:
+                if ' ' in delivery_deadline:
+                    date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d %H:%M:%S')
+                else:
+                    date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d')
+                date_obj = date_obj + timedelta(hours=6)
+
+                date_deadline = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+
+            except ValueError as e:
+                print(f"Date conversion error: {e}")
+                try:
+                    date_obj = datetime.strptime(delivery_deadline, '%d-%m-%Y')
+                    date_deadline = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+                except:
+                    print("All date format conversions failed")
+        po = request.env['project.purchase.order'].sudo().create({'name':kwargs.get('po_number')})
+        task_vals = {
+            'project_id': project.id,
+            'name': kwargs.get('short_desc', task_identifier),
+            'po': po.id,
+            'country_id': kwargs.get('country_id'),
+            'buyer_id': kwargs.get('buyer_id'),
+            'brand_id': kwargs.get('brand_id'),
+            'order_qty': kwargs.get('order_qty'),
+            'date_deadline': date_deadline,
+            'style': kwargs.get('style'),
+            'color': kwargs.get('color'),
+            'task_id': task_identifier,
+            'note': kwargs.get('description'),
+            'vendor_id' : request.env.user.partner_id.id,
+        }
+        task = request.env['project.task'].sudo().create(task_vals)
+
+        uploaded_dump_files = request.httprequest.files.getlist('uploaded_file_data[]')
+        attachment_ids = []
+
+
+        for file in uploaded_dump_files:
+            content = file.read()
+            if not content:
+                continue
+            attachment = request.env['ir.attachment'].sudo().create({
+                'name': file.filename,
+                'datas': base64.b64encode(content),  # bytes only
+                'type': 'binary',
+                'res_model': 'project.task',
+                'res_id': task.id,
+                'mimetype': file.content_type or 'application/octet-stream',
+            })
+            attachment_ids.append(attachment.id)
+
+        if attachment_ids:
+            task.sudo().write({
+                'dump_attachment_ids': [(6, 0, attachment_ids)]  # works if Many2many
+            })
+
+        # uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
+        # garments_attachment_ids = []
+        # file_contents = []
+        # for file in uploaded_garments_files:
+        #     content = file.read()
+        #     file_contents.append((file.filename, content))
+        # for file in uploaded_garments_files:
+        #     content = file.read()
+        #     attachment = request.env['ir.attachment'].sudo().create({
+        #         'name': file.filename,
+        #         'datas': base64.b64encode(content).decode('utf-8'),
+        #         'type': 'binary',
+        #         'res_model': 'project.task',
+        #         'res_id': task.id,
+        #     })
+        #     garments_attachment_ids.append(attachment.id)
+        # if garments_attachment_ids:
+        #     task.sudo().write({
+        #         'garments_attachment_ids': [(4, att_id) for att_id in attachment_ids]
+        #     })
+
+        uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
+        garments_attachment_ids = []
+
+        for file in uploaded_garments_files:
+            content = file.read()
+            if not content:
+                continue
+            attachment = request.env['ir.attachment'].sudo().create({
+                'name': file.filename,
+                'datas': base64.b64encode(content),
+                'type': 'binary',
+                'res_model': 'project.task',
+                'res_id': task.id,
+                'mimetype': file.content_type or 'application/octet-stream',
+            })
+            garments_attachment_ids.append(attachment.id)
+
+        if garments_attachment_ids:
+            task.sudo().write({
+                'garments_attachment_ids': [(6, 0, garments_attachment_ids)]  # many2many
+            })
+
+        return request.make_response("Task created successfully.")
+
+    @http.route(['/rss/<int:project_id>', '/rss/<int:project_id>/<int:task_id>'], type='http', auth='user', website=True)
+    def custom_portal_base(self,project_id=None, task_id=None, **kw):
+        if project_id:
+            TaskModel = request.env['project.task'].sudo().search([('project_id','=',project_id)])
+            all_tasks = TaskModel
+        else:
+            TaskModel = request.env['project.task'].sudo()
+            all_tasks =  TaskModel.search([])
+
+
         countries = request.env['res.country'].sudo().search([])
         brands = request.env['buyer.brand'].sudo().search([])
+        po_list = request.env['project.purchase.order'].sudo().search([])
+        buyer = request.env['party.buyer'].sudo().search([])
         state_selection = TaskModel._fields['state'].selection
 
 
         page_vals = {
             'countries': countries,
             'brand': brands,
+            'po_list':po_list,
             'state_selection': state_selection,
         }
 
@@ -31,15 +222,23 @@ class CustomPortal(http.Controller):
                 'page_title': task_view.name,
                 'task_view': task_view,
                 'stages': stages,
+                'project_id': task_view.project_id.id,
+                'countries': countries,
+                'brand': brands,
+                'buyer': buyer,
+                'po_list': po_list,
                 'state_selection':state_selection
             })
             return request.render('custom_portal_rss.portal_form_view_page', page_vals)
 
-        all_tasks = TaskModel.search([])
+        #all_tasks = TaskModel.search([])
         stages = request.env['project.task.type'].sudo().search([])
         page_vals.update({
             'task_list': all_tasks,
             'stages': stages,
+            'brands': brands,
+            'buyer': buyer,
+            'project_id':project_id,
             'pending_tasks': all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])]),
             'pending_tasks_count': len(all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])])),
             'done_tasks': all_tasks.search([('stage_id.name', 'in', ['Done','Delivered'])]),
@@ -73,17 +272,17 @@ class CustomPortal(http.Controller):
         if date_deadline:
             task.date_deadline = date_deadline
 
-        if uploaded_garments_file:
-            task.garments_file = base64.b64encode(uploaded_garments_file.read())
-            task.garments_filename = uploaded_garments_file.filename
+        # if uploaded_garments_file:
+        #     task.garments_file = base64.b64encode(uploaded_garments_file.read())
+        #     task.garments_filename = uploaded_garments_file.filename
 
         if order_qty:
             task.order_qty = order_qty
 
 
-        if uploaded_dump_file:
-            task.dump_file = base64.b64encode(uploaded_dump_file.read())
-            task.dump_filename = uploaded_dump_file.filename
+        # if uploaded_dump_file:
+        #     task.dump_file = base64.b64encode(uploaded_dump_file.read())
+        #     task.dump_filename = uploaded_dump_file.filename
 
         if style:
             task.style = style
@@ -144,9 +343,9 @@ class CustomPortal(http.Controller):
 
         task = request.env['project.task'].sudo().browse(int(task_id))
         uploaded_layout_file_file = request.httprequest.files.get('layout_file')
-        if uploaded_layout_file_file:
-            task.layout_file = base64.b64encode(uploaded_layout_file_file.read())
-            task.layout_filename = uploaded_layout_file_file.filename
+        # if uploaded_layout_file_file:
+        #     task.layout_file = base64.b64encode(uploaded_layout_file_file.read())
+        #     task.layout_filename = uploaded_layout_file_file.filename
 
         countries = request.env['res.country'].sudo().search([])
         brands = request.env['buyer.brand'].sudo().search([])
@@ -161,9 +360,9 @@ class CustomPortal(http.Controller):
         #     task.sudo().write({'stage_id': stage.id})
         # task.state = '01_in_progress'
 
-        email_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'DEFAULT')])
-        email_to = task.vendor_id.email
-        self.email_from_lauout_design_team(task,email_server,email_to)
+        # email_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'DEFAULT')])
+        # email_to = task.vendor_id.email
+        # self.email_from_lauout_design_team(task,email_server,email_to)
 
         return request.render('custom_portal_rss.portal_form_view_page', {
             'task_view': task,

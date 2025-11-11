@@ -16,5 +16,9 @@
             <field name="name">Admin User</field>
             <field name="category_id" ref="custom_project.category_user"/>
         </record>
+        <record id="group_layout_user" model="res.groups">
+            <field name="name">Layout User</field>
+            <field name="category_id" ref="custom_project.category_user"/>
+        </record>
     </data>
 </odoo>

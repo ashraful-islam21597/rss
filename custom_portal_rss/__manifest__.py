@@ -24,6 +24,7 @@ Long description of module's purpose
     'data': [
        'templates/RSS/portal_base_template.xml',
        'templates/RSS/templates/portal_form_view.xml',
+       'templates/RSS/templates/portal_project_view.xml',
        'templates/RSS/templates/email_tmpl.xml',
     ],
     'installable': True,

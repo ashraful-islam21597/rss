@@ -3,7 +3,7 @@
         <link rel="stylesheet" href="/custom_portal_rss/static/css/global_css/global.css"/>
         <link rel="stylesheet" href="/custom_portal_rss/static/css/custom_class.css"/>
         <link rel="stylesheet" href="/custom_portal_rss/static/css/my_component.css"/>
-        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css?v=32"/>
         <!--=========================================-->
         <!-- =========  Header Start Here  ========= -->
         <!--=========================================-->
@@ -16,7 +16,7 @@
                 <div class="right">
                     <div class="user-img">
                         <img t-att-src="'/web/image/res.users/%d/avatar_128' % request.env.user.id"
-                                class="user-avatar"
+                             class="user-avatar"
                              alt="user image" loading="lazy"/>
                     </div>
                 </div>
@@ -54,11 +54,14 @@
                 </style>
 
 
-
-               <div class="my-flex-between my-my-20">
+                <div class="my-flex-between my-my-20">
                     <div>
-                      <a href="/rss/task/list" class="my-btn my-primary-btn"><span class="content"><i class="ri-arrow-left-line"> </i></span></a>
-                     </div>
+                        <a t-attf-href="/rss/{{ project_id }}" class="my-btn my-primary-btn">
+                            <span class="content">
+                                <i class="ri-arrow-left-line"></i>
+                            </span>
+                        </a>
+                    </div>
                     <!--======== Status Here ==========-->
                     <div class="status-wrapper">
                         <!--                    <ul class="my-mt-12 my-flex-center status-area">-->
@@ -88,75 +91,373 @@
                             </li>
                         </ul>
                     </div>
-               </div>
+                </div>
 
 
                 <!--========= For General info =========-->
-                <div class="form-view ">
+                <!-- <div class="form-view ">
 
 
-                    <!-- For General Info -->
+                     &lt;!&ndash; For General Info &ndash;&gt;
+                     <div>
+                         <h3 class="my-text-primary">General Info</h3>
+                         <form action="#" method="post" enctype="multipart/form-data" class=" my-mt-12">
+
+                             <div class="my-grid-2 my-grid-md-1 my-gap-12">
+                                 <div class="my-input-control">
+                                     <label class="label">Name
+                                         <span class="required">*</span>
+                                     </label>
+                                     &lt;!&ndash;======================= vai jodi error name er class input add koren then error style pabe =========================&ndash;&gt;
+                                     <input type="text"
+                                            t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true"
+                                            t-attf-class="my-input-control-input #{'error' if not task_view.name else ''}"
+                                            placeholder="Name" t-att-value="task_view.name"/>
+                                     <small t-if="not task_view.name" class="error-message-new">Error Message</small>
+                                 </div>
+
+                                 <div class="my-input-control">
+                                     <label class="label">PO Number
+                                         <span class="required">*</span>
+                                     </label>
+                                     <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="PO Number" t-att-value="task_view.po.name"/>
+                                     <small t-if="not task_view.po.name" class="error-message-new">Error Message</small>
+                                 </div>
+                             </div>
+                             <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-16">
+
+                                 <div class="my-input-control">
+                                     <label class="label">Vendor
+                                         <span class="required">*</span>
+                                     </label>
+                                     <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="Vendor" t-att-value="task_view.vendor_id.name"/>
+                                     <small t-if="not task_view.vendor_id.name" class="error-message-new">Error Message
+                                     </small>
+                                 </div>
+                                 <div class="my-input-control">
+                                     <label class="label">Buyer Name
+                                         <span class="required">*</span>
+                                     </label>
+                                     <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="PO Number" t-att-value="task_view.buyer_id.name"/>
+                                     <small t-if="not task_view.buyer_id.name" class="error-message-new">Error
+                                         Message
+                                     </small>
+                                 </div>
+                             </div>
+                             <div class="my-grid-2 my-mt-16">
+                                 <div class="my-input-control">
+                                     <label class="label">Assignee</label>
+                                     <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="Assignee" t-att-value="task_view.user_ids.name"/>
+                                     <small class="error-message-new">Error Message</small>
+                                 </div>
+                             </div>
+                         </form>
+                     </div>
+                 </div>-->
+
+                <!--========= For General info =========-->
+                <div class="form-view my-mt-12">
                     <div>
                         <h3 class="my-text-primary">General Info</h3>
-                        <form action="#" method="post" enctype="multipart/form-data" class=" my-mt-12">
+                        <form action="#" method="post" enctype="multipart/form-data" class=" my-mt-8">
 
-                            <div class="my-grid-2 my-grid-md-1 my-gap-12">
+                            <div class="my-grid-2 my-grid-md-1 my-gap-8">
+                                <!-- For Task ID -->
                                 <div class="my-input-control">
-                                    <label class="label">Name
-                                        <span class="required">*</span>
+                                    <label class="label">Task ID
+                                        <span class="required"></span>
                                     </label>
                                     <!--======================= vai jodi error name er class input add koren then error style pabe =========================-->
-                                    <input type="text"
-                                           t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true"
-                                           t-attf-class="my-input-control-input #{'error' if not task_view.name else ''}"
-                                           placeholder="Name" t-att-value="task_view.name"/>
-                                    <small t-if="not task_view.name" class="error-message-new">Error Message</small>
+                                    <input t-att-value="task_view.task_id" type="text" disabled="True" class=""
+                                           placeholder="RSS/2025/00001"/>
+                                    <!-- <small class="error-message-new">Error Message</small> -->
                                 </div>
 
-                                <div class="my-input-control">
-                                    <label class="label">PO Number
-                                        <span class="required">*</span>
-                                    </label>
-                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="PO Number" t-att-value="task_view.po.name"/>
-                                    <small t-if="not task_view.po.name" class="error-message-new">Error Message</small>
-                                </div>
-                            </div>
-                            <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-16">
-
+                                <!-- For Vendor -->
                                 <div class="my-input-control">
                                     <label class="label">Vendor
-                                        <span class="required">*</span>
+                                        <span class="required"></span>
                                     </label>
-                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="Vendor" t-att-value="task_view.vendor_id.name"/>
-                                    <small t-if="not task_view.vendor_id.name" class="error-message-new">Error Message
-                                    </small>
-                                </div>
-                                <div class="my-input-control">
-                                    <label class="label">Buyer Name
-                                        <span class="required">*</span>
-                                    </label>
-                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="PO Number" t-att-value="task_view.buyer_id.name"/>
-                                    <small t-if="not task_view.buyer_id.name" class="error-message-new">Error
-                                        Message
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="my-grid-2 my-mt-16">
-                                <div class="my-input-control">
-                                    <label class="label">Assignee</label>
-                                    <input t-att-disabled="false if request.env.user.has_group('custom_project.group_admin_panel_user') else true" type="text" placeholder="Assignee" t-att-value="task_view.user_ids.name"/>
+                                    <input t-att-value="task_view.vendor_id.name" type="text" disabled="True"
+                                           placeholder="MR X"/>
                                     <small class="error-message-new">Error Message</small>
                                 </div>
                             </div>
+
+
+                            <div class="my-grid-2 my-grid-md-1 my-gap-8 my-mt-8">
+                                <!-- For PO Number -->
+                                <div class="my-input-control">
+                                    <label class="label">PO Number</label>
+                                    <input t-att-value="task_view.po.name" type="text" disabled="True"
+                                           placeholder="PO 001"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                <!-- For Buyer Name -->
+                                <div class="my-input-control">
+                                    <label class="label">Buyer Name</label>
+                                    <input t-att-value="task_view.buyer_id.name" type="text" disabled="True"
+                                           placeholder="Mr X"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2  my-grid-md-1 my-gap-8 my-mt-8">
+                                <!-- For Country -->
+                                <div class="my-input-control">
+                                    <label class="label">Country</label>
+                                    <input t-att-value="task_view.country_id.name" type="text" disabled="True"
+                                           placeholder="Bangladesh"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                <!-- For Brand -->
+                                <div class="my-input-control">
+                                    <label class="label">Brand</label>
+                                    <input t-att-value="task_view.brand_id.name" type="text" disabled="True"
+                                           placeholder="Gucci"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2  my-grid-md-1 my-gap-8 my-mt-8">
+                                <!-- For Country -->
+                                <div class="my-input-control">
+                                    <label class="label">Deadline</label>
+                                    <input t-att-value="task_view.date_deadline" type="date" disabled="True"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                <!-- For Brand -->
+                                <div class="my-input-control">
+                                    <label class="label">Order Qty</label>
+                                    <input t-att-value="task_view.order_qty" type="text" disabled="True"
+                                           placeholder="1200"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-8  my-grid-md-1 my-mt-8">
+                                <!-- For Style -->
+                                <div class="my-input-control">
+                                    <label class="label">Style</label>
+                                    <input t-att-value="task_view.style" type="text" disabled="True"
+                                           placeholder="winter"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                <!-- For Color -->
+                                <div class="my-input-control">
+                                    <label class="label">Color</label>
+                                    <input t-att-value="task_view.color" type="text" disabled="True"
+                                           placeholder="red and blue"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-1 my-gap-8  my-mt-8">
+                                <!-- For Garments uploaded file -->
+                                <div class="my-input-control file-input ">
+                                    <label class="label">Garments File
+                                        <span class="my-ml-2">
+                                            <i
+                                                    class="ri-file-line"></i>
+                                        </span>
+                                    </label>
+
+
+                                    <!-- uploaded file here -->
+                                    <div class="uploaded-file my-d-flex my-gap-4 flex-wrap">
+
+                                        <t t-foreach="task_view.garments_attachment_ids" t-as="attach">
+                                            <div class="item file-item position-relative">
+                                                <div class="file-name">
+                                                    <!-- Check file extension and display accordingly -->
+                                                    <t t-if="(attach.name or '').endswith('.png')">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark-image"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown Image'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="(attach.name or '').endswith('.pdf')">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark-pdf"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown PDF'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="(attach.name or '').endswith('.txt')">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark-text"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown Text File'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown File'"/>
+                                                        </span>
+                                                    </t>
+                                                </div>
+
+                                                <!-- Hover Actions (Left: Preview, Right: Download) -->
+                                                <div class="file-actions">
+                                                    <a t-att-href="'/web/content/' + str(attach.id)" target="_blank" title="Preview" class="action-preview">
+<!--                                                        <i class="bi bi-eye"></i> -->
+                                                        <t t-esc="attach.name or 'Unknown Image'"/>
+                                                    </a>
+<!--                                                    <a t-att-href="'/web/content/' + str(attach.id) + '?download=true'" target="_blank" title="Download" class="action-download">-->
+<!--                                                        <i class="bi bi-download"></i> Download-->
+<!--                                                    </a>-->
+                                                </div>
+                                            </div>
+                                        </t>
+
+                                    </div>
+                                </div>
+                                <div class="my-input-control file-input">
+                                    <label class="label">Dump File
+                                        <span class="my-ml-2">
+                                            <i class="ri-file-line"></i>
+                                        </span>
+                                    </label>
+                                    <!--<div class="uploaded-file my-d-flex my-gap-4 flex-wrap">
+                                        <t t-foreach="task_view.dump_attachment_ids" t-as="attach">
+                                            <div class="item file-item">
+                                                <div class="file-name">
+                                                    &lt;!&ndash; Check file extension and display accordingly &ndash;&gt;
+                                                    <t t-if="(attach.name or '').endswith('.png')">
+                                                        <span class="file-icon">
+                                                            <i class="fa fa-image"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown Image'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="(attach.name or '').endswith('.pdf')">
+                                                        <span class="file-icon">
+                                                            <i class="fa fa-file-pdf"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown PDF'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="(attach.name or '').endswith('.txt')">
+                                                        <span class="file-icon">
+                                                            <i class="fa fa-file-alt"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown Text File'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="file-icon">
+                                                            <i class="fa fa-file"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown File'"/>
+                                                        </span>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>-->
+
+                                   <!-- Template code -->
+                                    <div class="uploaded-file my-d-flex my-gap-4 flex-wrap">
+                                        <t t-foreach="task_view.dump_attachment_ids" t-as="attach">
+                                            <div class="item file-item position-relative">
+                                                <div class="file-name">
+                                                    <!-- Check file extension and display accordingly -->
+                                                    <t t-if="(attach.name or '').endswith('.png')">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark-image"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown Image'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="(attach.name or '').endswith('.pdf')">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark-pdf"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown PDF'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="(attach.name or '').endswith('.txt')">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark-text"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown Text File'"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="file-icon">
+                                                            <i class="bi bi-file-earmark"></i>
+                                                        </span>
+                                                        <span class="file-name-text">
+                                                            <t t-esc="attach.name or 'Unknown File'"/>
+                                                        </span>
+                                                    </t>
+                                                </div>
+
+                                                <!-- Hover Actions (Left: Preview, Right: Download) -->
+                                                <div class="file-actions">
+                                                    <a t-att-href="'/web/content/' + str(attach.id)" target="_blank" title="Preview" class="action-preview">
+<!--                                                        <i class="bi bi-eye"></i> Preview-->
+                                                        <t t-esc="attach.name or 'Unknown Image'"/>
+                                                    </a>
+<!--                                                    <a t-att-href="'/web/content/' + str(attach.id) + '?download=true'" target="_blank" title="Download" class="action-download">-->
+<!--                                                        <i class="bi bi-download"></i> Download-->
+<!--                                                    </a>-->
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="my-grid-1 my-gap-8 my-mt-8">
+                                <!-- For Short Description -->
+                                <div class="my-input-control">
+                                    <label class="label">Short Description</label>
+                                    <input t-att-value="task_view.name" disabled="True" type="text" placeholder="Short Description"/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-1 my-gap-8 my-mt-8">
+                                <!-- For Description -->
+                                <div class="my-input-control">
+                                    <label class="label">Description</label>
+                                    <textarea style="text-align:left; vertical-align:top;" name="description" placeholder="Description" id="description">
+                                            <t t-esc="task_view.note or ''"/>
+                                    </textarea>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
                         </form>
                     </div>
                 </div>
 
 
                 <!--========= For Vendor info =========-->
-                <div class="my-mt-12 form-view">
+               <!-- <div class="my-mt-12 form-view">
                     <h3 class="my-text-primary">Vendor Info</h3>
-                    <form  action="/rss/vendor/task/save" method="post" enctype="multipart/form-data">
+                    <form action="/rss/vendor/task/save" method="post" enctype="multipart/form-data">
                         <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-12">
                             <div class="my-input-control file-input">
                                 <label class="label">Dump File
@@ -166,26 +467,28 @@
                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
                                        class="" name="dump_file"
                                        t-att-value="task_view.dump_file" type="file" placeholder="Name"/>
-                                <t t-if="task_view.dump_file">
+                                <t t-if="task_view.dump_attachment_ids">
                                     <div class="show-uploaded-file active my-flex-between my-align-center my-mt-2">
-                                        <a t-att-href="'/web/content/%s/%s' % (task_view.id, 'dump_file')"
-                                           target="_blank"
-                                           class="my-text-primary">
-                                            <i class="fa fa-file"></i>
-                                            <t t-esc="task_view.dump_filename or 'Download File'"/>
-                                        </a>
-                                        <t t-if="task_view.dump_filename">
-                                            <span class="file-type my-text-muted">
-                                                (
-                                                <t t-esc="task_view.dump_filename.split('.')[-1].upper()"/>
-                                                file)
-                                            </span>
+                                        <t t-foreach="task_view.dump_attachment_ids" t-as="attach">
+                                            <div class="my-mb-2">
+                                                <a t-att-href="'/web/content/%s?download=true' % attach.id"
+                                                   target="_blank"
+                                                   class="my-text-primary">
+                                                    <i class="fa fa-file"></i>
+                                                    <t t-esc="attach.name or 'Download File'"/>
+                                                </a>
+                                                <span class="file-type my-text-muted">
+                                                    (
+                                                    <t t-esc="(attach.name or '').split('.')[-1].upper()"/>
+                                                    file)
+                                                </span>
+                                            </div>
                                         </t>
                                     </div>
                                 </t>
                                 <small class="error-message-new">Error Message</small>
 
-                                <!-- uploaded file here (when active class add then show it) -->
+                                &lt;!&ndash; uploaded file here (when active class add then show it) &ndash;&gt;
                                 <div class="show-uploaded-file ">
                                     <p>File Here</p>
                                 </div>
@@ -198,20 +501,22 @@
                                 <input t-att-required="False if task_view.garments_file else True"
                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
                                        type="file" name="garments_file" placeholder="Garments File"/>
-                                <t t-if="task_view.garments_file">
+                                <t t-if="task_view.garments_attachment_ids">
                                     <div class="show-uploaded-file active my-flex-between my-align-center my-mt-2">
-                                        <a t-att-href="'/web/content/%s/%s' % (task_view.id, 'garments_file')"
-                                           target="_blank"
-                                           class="my-text-primary">
-                                            <i class="fa fa-file"></i>
-                                            <t t-esc="task_view.garments_filename or 'Download File'"/>
-                                        </a>
-                                        <t t-if="task_view.garments_filename">
-                                            <span class="file-type my-text-muted">
-                                                (
-                                                <t t-esc="task_view.garments_filename.split('.')[-1].upper()"/>
-                                                file)
-                                            </span>
+                                        <t t-foreach="task_view.garments_attachment_ids" t-as="attach">
+                                            <div class="my-mb-2">
+                                                <a t-att-href="'/web/content/%s?download=true' % attach.id"
+                                                   target="_blank"
+                                                   class="my-text-primary">
+                                                    <i class="fa fa-file"></i>
+                                                    <t t-esc="attach.name or 'Download File'"/>
+                                                </a>
+                                                <span class="file-type my-text-muted">
+                                                    (
+                                                    <t t-esc="(attach.name or '').split('.')[-1].upper()"/>
+                                                    file)
+                                                </span>
+                                            </div>
                                         </t>
                                     </div>
                                 </t>
@@ -222,7 +527,9 @@
                         <div class="my-grid-2 my-gap-12 my-grid-md-1 my-mt-16">
                             <div class="my-input-control">
                                 <label class="label">Country</label>
-                                <select required="1"  t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"   name="country_id" id="country_id" class="my-select">
+                                <select required="1"
+                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                        name="country_id" id="country_id" class="my-select">
                                     <option value="">Select Country</option>
                                     <t t-foreach="countries" t-as="c">
                                         <option t-att-value="c.id"
@@ -238,7 +545,9 @@
                                 <label class="label">Brand
                                     <span class="required">*</span>
                                 </label>
-                                <select required="1"  t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"  name="brand_id" id="brand_id" class="my-select">
+                                <select required="1"
+                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                        name="brand_id" id="brand_id" class="my-select">
                                     <option value="">Select Brand</option>
                                     <t t-foreach="brand" t-as="b">
                                         <option t-att-value="b.id"
@@ -252,7 +561,7 @@
                                 <label class="label">Order Date
                                     <span class="required">*</span>
                                 </label>
-                                <input required="1"  type="date"
+                                <input required="1" type="date"
                                        name="date_deadline"
                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
                                        t-att-value="task_view.date_deadline and task_view.date_deadline.strftime('%Y-%m-%d') or ''"
@@ -304,23 +613,23 @@
                                     <span class="text-danger">*</span>
                                 </label>
 
-                               <div class="my-d-flex my-align-center my-gap-6 my-mt-2">
-                                    <!-- Color Picker -->
-                                <input type="color"
-                                       name="color"
-                                       t-att-value="task_view.color or '#3498db'"
-                                       class="color-input"
-                                       style="cursor: pointer;"
-                                       required="1"
-                                       t-att-disabled="False if request.env.user.has_group('custom_project.group_vendor_user') else True"/>
+                                <div class="my-d-flex my-align-center my-gap-6 my-mt-2">
+                                    &lt;!&ndash; Color Picker &ndash;&gt;
+                                    <input type="color"
+                                           name="color"
+                                           t-att-value="task_view.color or '#3498db'"
+                                           class="color-input"
+                                           style="cursor: pointer;"
+                                           required="1"
+                                           t-att-disabled="False if request.env.user.has_group('custom_project.group_vendor_user') else True"/>
 
-                                <!-- Color Code Display -->
-                                <input type="text"
-                                       name="color_code_display"
-                                       t-att-value="task_view.color or '#3498db'"
-                                       readonly="1"
-                                       class="color-code ms-3"/>
-                               </div>
+                                    &lt;!&ndash; Color Code Display &ndash;&gt;
+                                    <input type="text"
+                                           name="color_code_display"
+                                           t-att-value="task_view.color or '#3498db'"
+                                           disabled="True"
+                                           class="color-code ms-3"/>
+                                </div>
 
                                 <small class="error-message-new ms-3">Error Message</small>
                             </div>
@@ -329,28 +638,31 @@
                         </div>
 
 
-                        <!--=========  Action Button Here ==========-->
+                        &lt;!&ndash;=========  Action Button Here ==========&ndash;&gt;
                         <div class="my-d-flex my-gap-4 my-mt-8 my-justify-end my-w-100-p">
-                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"  class="my-btn my-primary-btn">
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                    class="my-btn my-primary-btn">
                                 <span class="content">Save</span>
                             </button>
-                             <input type="hidden" name="task_id" t-att-value="task_view.id"/>
-                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true" class="my-btn my-btn-danger">
+                            <input type="hidden" name="task_id" t-att-value="task_view.id"/>
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_vendor_user') else true"
+                                    class="my-btn my-btn-danger">
                                 Cancel
                             </button>
                         </div>
                     </form>
-                </div>
+                </div>-->
 
 
                 <!--=========== For Layouts Info =============-->
                 <div class="my-mt-12 form-view">
                     <h3 class="my-text-primary">Layouts</h3>
                     <form action="/rss/design/task/save" method="post" enctype="multipart/form-data">
-                        <div class="my-grid-2 my-grid-md-1 my-gap-12 my-mt-12">
+                        <div class="my-grid-1 my-grid-md-1 my-gap-12 my-mt-12">
                             <div class="my-input-control ">
                                 <label class="label">Layout File</label>
-                                <input  class="" name="layout_file" t-att-value="task_view.layout_file" type="file" placeholder="Name"/>
+                                <input class="" name="layout_file" t-att-value="task_view.layout_file" type="file"
+                                       placeholder="Name"/>
                                 <t t-if="task_view.dump_file">
                                     <div class="show-uploaded-file active my-flex-between my-align-center my-mt-2">
                                         <a t-att-href="'/web/content/%s/%s' % (task_view.id, 'layout_file')"
@@ -374,15 +686,16 @@
 
 
                         <!--=========  Action Button Here ==========-->
-                        <div class="my-d-flex my-gap-4 my-mt-8 my-justify-end my-w-100-p">
+                        <div class="my-d-flex my-gap-4 my-mt-8 my-justify-end my-w-100-p my-gap-6">
                             <input type="hidden" name="task_id" t-att-value="task_view.id"/>
+                            <button class="my-btn my-btn-danger">
+                                Cancel
+                            </button>
                             <button class="my-btn my-primary-btn">
                                 <span class="content">Save</span>
                             </button>
 
-                            <button class="my-btn my-btn-danger">
-                                Cancel
-                            </button>
+
                         </div>
                     </form>
                 </div>
@@ -395,7 +708,8 @@
                         <div class="my-grid-2 my-gap-12 my-grid-md-1 my-mt-12">
                             <div class="my-input-control ">
                                 <label class="label">Approval Status</label>
-                                <select t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" name="state" id="state" class="my-select">
+                                <select t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
+                                        name="state" id="state" class="my-select">
                                     <option value="">Select Status</option>
                                     <t t-foreach="state_selection" t-as="s">
                                         <option t-att-value="s[0]"
@@ -410,13 +724,14 @@
                                 <label class="label">Approval By</label>
                                 <input t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
                                        type="text" name="approved_by" placeholder="Approved by"
-                                       t-att-value="task_view.approved_by.name or request.env.user.name if request.env.user.has_group('custom_project.group_buyer_user') else '' " readonly="1"/>
+                                       t-att-value="task_view.approved_by.name or request.env.user.name if request.env.user.has_group('custom_project.group_buyer_user') else '' "
+                                       disabled="True"/>
                                 <small class="error-message-new">Error Message</small>
                             </div>
 
                             <div class="my-input-control">
                                 <label class="label">Approval Date</label>
-<!--                                <input type="date" name="approved_date" placeholder="Approved Date"/>-->
+                                <!--                                <input type="date" name="approved_date" placeholder="Approved Date"/>-->
                                 <input type="date"
                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
                                        name="approved_date"
@@ -429,7 +744,9 @@
                         <div class="my-grid-1 my-mt-16">
                             <div class="my-input-control">
                                 <label class="label">Note</label>
-                                <textarea t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" name="note" placeholder="Note" id="">
+                                <textarea
+                                        t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
+                                        name="note" placeholder="Note" id="">
                                     <t t-esc="task_view.note or ''"/>
                                 </textarea>
                                 <small class="error-message-new">Error Message</small>
@@ -438,15 +755,18 @@
 
 
                         <!--=========  Action Button Here ==========-->
-                        <div class="my-d-flex my-gap-4 my-mt-12 my-justify-end my-w-100-p">
+                        <div class="my-d-flex my-gap-4 my-mt-12 my-justify-end my-w-100-p my-gap-6">
                             <input type="hidden" name="task_id" t-att-value="task_view.id"/>
-                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" class="my-btn my-primary-btn">
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
+                                    class="my-btn my-btn-danger">
+                                Cancel
+                            </button>
+                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true"
+                                    class="my-btn my-primary-btn">
                                 <span class="content">Save</span>
                             </button>
 
-                            <button t-att-disabled="false if request.env.user.has_group('custom_project.group_buyer_user') else true" class="my-btn my-btn-danger">
-                                Cancel
-                            </button>
+
                         </div>
                     </form>
                 </div>
@@ -456,13 +776,12 @@
 
         <!--===========|| For Notification ||=========-->
         <!-- if you will active class add then show it -->
-<!--        <div class="notification-box active">-->
-<!--            <div class="content my-fw-medium my-text-primary">Done ✔✔</div>-->
-<!--        </div>-->
+        <!--        <div class="notification-box active">-->
+        <!--            <div class="content my-fw-medium my-text-primary">Done ✔✔</div>-->
+        <!--        </div>-->
         <div t-if="toast" class="notification-box active" id="notificationBox">
             <div t-esc="toast_message" class="content my-fw-medium my-text-primary"/>
         </div>
-
 
 
         <!-- Footer here -->
@@ -480,23 +799,23 @@
         <script src="custom_portal_rss/static/js/main.js"></script>
         <script>
 
-    setTimeout(() => {
-        const box = document.getElementById('notificationBox');
-        if (box) {
+            setTimeout(() => {
+            const box = document.getElementById('notificationBox');
+            if (box) {
             box.classList.remove('active');
             box.style.opacity = '0';
             box.style.transition = 'opacity 0.5s ease';
             setTimeout(() => box.remove(), 500); // optional: remove from DOM
-        }
-    }, 3000);
-    const colorInput = document.querySelector('input[name="color"]');
-    const codeDisplay = document.querySelector('input[name="color_code_display"]');
-    if (colorInput &amp;&amp; codeDisplay) {
-        colorInput.addEventListener("input", function () {
+            }
+            }, 3000);
+            const colorInput = document.querySelector('input[name="color"]');
+            const codeDisplay = document.querySelector('input[name="color_code_display"]');
+            if (colorInput &amp;&amp; codeDisplay) {
+            colorInput.addEventListener("input", function () {
             codeDisplay.value = this.value.toUpperCase();
-        });
-    }
-</script>
+            });
+            }
+        </script>
 
 
     </template>

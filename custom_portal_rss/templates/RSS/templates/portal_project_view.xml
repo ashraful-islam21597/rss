@@ -1,0 +1,70 @@
+<odoo>
+    <template id="portal_project_form_view_page" name="Portal Form View Page">
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/global_css/global.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/custom_class.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/my_component.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css?v=32"/>
+        <!--=========================================-->
+        <!-- =========  Header Start Here  ========= -->
+        <!--=========================================-->
+        <header>
+            <div class="header-wrapper my-container my-flex-between">
+                <a href="">
+                    <h1 class="left my-fs-xxl my-text-white">RSS</h1>
+                </a>
+
+                <div class="right">
+                    <div class="user-img">
+                        <img t-att-src="'/web/image/res.users/%d/avatar_128' % request.env.user.id"
+                             class="user-avatar"
+                             alt="user image" loading="lazy"/>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="my-flex-column flex-1 form-view-main">
+            <section class="my-flex-column flex-1 my-container">
+                <style>
+                    .notification-box {
+                    background: #e6ffed;
+                    border: 1px solid #00b74a;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    width: fit-content;
+                    margin: 10px;
+                    opacity: 1;
+                    transition: opacity 0.5s ease;
+                    }
+                    .notification-box.active {
+                    opacity: 1;
+                    }
+
+
+                    .error-message-new {
+                    display: none;
+                    color: red;
+                    font-size: 12px;
+                    }
+                </style>
+
+            </section>
+        </main>
+
+        <footer>
+            <p>Design by <a href="https://www.xsellencebdltd.com/">xsellence bangladesh ltd</a> Odoo
+                <span class="gold">
+                    Gold
+                    Partner
+                </span>
+            </p>
+        </footer>
+
+
+
+
+
+
+    </template>
+</odoo>

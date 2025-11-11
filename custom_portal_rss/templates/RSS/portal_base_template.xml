@@ -1,9 +1,9 @@
 <odoo>
     <template id="portal_base_page" name="Portal Base Page">
-        <link rel="stylesheet" href="/custom_portal_rss/static/css/global_css/global.css"/>
+<!--        <link rel="stylesheet" href="/custom_portal_rss/static/css/global_css/global.css"/>-->
         <link rel="stylesheet" href="/custom_portal_rss/static/css/custom_class.css"/>
         <link rel="stylesheet" href="/custom_portal_rss/static/css/my_component.css"/>
-        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css"/>
+        <link rel="stylesheet" href="/custom_portal_rss/static/css/pages/home.css?v=10"/>
 
         <header>
             <div class="header-wrapper my-container my-flex-between">
@@ -21,6 +21,32 @@
         <!--===========|| For Notification ||=========-->
         <!-- if you will active class add then show it -->
         <main class="my-flex-column flex-1">
+            <div class="my-container">
+                <div class="search-and-create-btn my-mt-20 my-flex-btween my-align-center my-w-100-p">
+
+                    <!-- Search Here -->
+                    <form action="#" class="my-bg-white-off my-p-4 my-radius-md shadow-sm">
+                        <div class="my-input-group my-d-flex my-align-center">
+                            <input type="text" placeholder="Search by Task ID" />
+
+                            <!-- search button -->
+                            <button type="submit" class="my-btn my-primary-btn">
+                                <div class="content"><i class="ri-search-line"></i></div>
+                            </button>
+                        </div>
+                    </form>
+
+
+                    <!--==============|| Create New Button ||===============-->
+                    <div class="">
+                        <button class="my-btn my-secondary-btn create-new-btn" id="open-create-article-modal-btn">
+                            <div class="content">
+                                <span class="span my-fs-xl">+</span> Create
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <section class="my-flex-column flex-1 my-container">
                 <div class="my-grid-2 my-grid-sm-1 box-wrapper my-gap-12 my-mt-20">
 
@@ -44,6 +70,7 @@
                             <table class="">
                                 <thead>
                                     <tr>
+                                        <th>Task ID</th>
                                         <th>Name</th>
                                         <th>Status</th>
                                         <th>Open</th>
@@ -52,10 +79,14 @@
 
                                 <tbody>
 
-                                    <tr class="list-data-open" t-attf-href="/rss/task/list/{{line.id}}"
+                                    <tr class="list-data-open" t-attf-href="/rss/{{line.project_id.id}}/{{line.id}}"
                                         t-foreach="pending_tasks" t-as="line">
+                                         <td>
+                                            <a class="name" t-attf-href="/rss/{{line.project_id.id}}/{{line.id}}"
+                                               t-field="line.task_id"/>
+                                        </td>
                                         <td>
-                                            <a class="name" t-attf-href="/rss/task/list/{{line.id}}"
+                                            <a class="name" t-attf-href="/rss/{{line.project_id.id}}/{{line.id}}"
                                                t-field="line.name"/>
                                         </td>
                                         <td>
@@ -87,7 +118,7 @@
                                                 -->
                                         </td>
                                         <td>
-                                            <a t-attf-href="/rss/task/list/{{line.id}}"
+                                            <a t-attf-href="/rss/{{line.project_id.id}}/{{line.id}}"
                                                class="my-btn my-primary-btn open-btn">
                                                 <div class="content">
                                                     <i class="ri-eye-line"></i>
@@ -153,10 +184,10 @@
                                 </thead>
 
                                 <tbody>
-                                    <tr t-attf-href="/rss/task/list/{{line.id}}"
+                                    <tr t-attf-href="/rss/{{line.id}}"
                                         t-foreach="done_tasks" t-as="line">
                                         <td>
-                                            <a class="name" t-attf-href="/rss/task/list/{{line.id}}"
+                                            <a class="name" t-attf-href="/rss/{{line.id}}"
                                                t-field="line.name"/>
                                         </td>
                                         <td>
@@ -170,7 +201,7 @@
                                                 -->
                                         </td>
                                         <td>
-                                            <a  t-attf-href="/rss/task/list/{{line.id}}" class="my-btn my-primary-btn open-btn">
+                                            <a  t-attf-href="/rss/{{line.id}}" class="my-btn my-primary-btn open-btn">
                                                 <div class="content">
                                                     <i class="ri-eye-line"></i>
                                                 </div>
@@ -227,9 +258,283 @@
             </p>
         </footer>
 
+         <!--============ Modal Start Here (New) =============-->
+        <div class="modal-overlay"></div>
 
-        <script src="custom_portal_rss/static/js/global_js/main.js"></script>
-        <script src="custom_portal_rss/static/js/main.js"></script>
+        <div class="my-modal " id="create-article-modal">
+            <form id="TaskDetailsForm" class="modal-content">
+                <div class="header">
+                    <h3 class="modal-head ">Vendor Information</h3>
+                    <button class="my-btn close-btn">✖</button>
+                </div>
+               <!-- <form id="TaskDetailsForm" action="/rss/task/create" method="post" enctype="multipart/form-data" class="modal-body my-has-scrollbar">
+                    <div class=" ">
+                        <div class="my-flex-column my-gap-10">
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                &lt;!&ndash; For Buyer Name &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label for="task-name">Buyer Name</label>
+                                    <select name="" id="">
+                                        <option value="">Md Tanvir</option>
+                                        <option value="">Md Foysal</option>
+                                        <option value="">Hasan Khan</option>
+                                    </select>
+                                </div>
+
+                                &lt;!&ndash; For PO Number &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">PO Number <span class="required">*</span></label>
+                                    <input name="po_number" type="text" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                &lt;!&ndash; For Country &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label for="task-name">Country</label>
+                                    <select name="" id="">
+                                        <option value="">Bangladesh</option>
+                                        <option value="">Pakistan</option>
+                                        <option value="">Nepal</option>
+                                    </select>
+                                </div>
+
+                                &lt;!&ndash; For Brand &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label for="task-name">Brand</label>
+                                    <select name="Brand" id="">
+                                        <option value="">Brand</option>
+                                        <option value="">Apex</option>
+                                        <option value="">Bata</option>
+                                        <option value="">Pakiaza</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                &lt;!&ndash; For Delivery Deadline &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">Delivery Deadline <span class="required">*</span></label>
+                                    <input type="date" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                &lt;!&ndash; For Order QTy &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">Order Quantity <span class="required">*</span></label>
+                                    <input min="1" type="number" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-1">
+                                &lt;!&ndash; For Short Description &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">Short Description <span class="required">*</span></label>
+                                    <input min="1" type="number" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                &lt;!&ndash; For Style &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">Style <span class="required">*</span></label>
+                                    <input type="texy" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                                &lt;!&ndash; For Color &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">Color <span class="required">*</span></label>
+                                    <input type="text" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                &lt;!&ndash; For Garments Pictures &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class="">Garments Pictures <span class="required">*</span></label>
+                                    <input type="file" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                                &lt;!&ndash; For Short Description &ndash;&gt;
+                                <div class="my-input-control">
+                                    <label class=""> Dump File <span class="required">*</span></label>
+                                    <input type="file" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-mt-10">
+                            &lt;!&ndash; For Long Description &ndash;&gt;
+                            <div class="my-input-control">
+                                <label class="">Description</label>
+                                <textarea name="" id=""></textarea>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="footer my-bg-white-off my-p-3">
+                    <div class="my-flex-between">
+                        <div>
+                        </div>
+                        <div class="my-d-flex my-align-center my-gap-8">
+                            <button class="my-btn-danger my-btn close-btn">Cancel</button>
+                            <button id="create_task_btn" class="my-btn my-primary-btn">
+                                <span class="content">Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                </form>-->
+                <div  class="modal-body my-has-scrollbar">
+                    <div>
+                        <input type="hidden" name="project_id" t-att-value="project_id"/>
+                        <div class="my-flex-column my-gap-10">
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                <div class="my-input-control">
+                                    <label>Buyer Name<span class="required">*</span></label>
+                                    <select name="buyer_id" id="buyer_id">
+                                        <option value="">Select Buyer</option>
+                                        <t t-foreach="buyer" t-as="buyer">
+                                            <option t-att-value="buyer.id" t-esc="buyer.name"/>
+                                        </t>
+                                    </select>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                <div class="my-input-control">
+                                    <label>PO Number
+                                        <span class="required">*</span>
+                                    </label>
+<!--                                    <select required="1" name="po_number" id="po_number" class="my-select">-->
+<!--                                        <option value="">Select PO Number</option>-->
+<!--                                        <t t-foreach="po_list" t-as="po">-->
+<!--                                            <option t-att-value="po.id" t-esc="po.name"/>-->
+<!--                                        </t>-->
+<!--                                    </select>-->
+                                    <input name="po_number" type="text" placeholder=""/>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                <div class="my-input-control">
+                                    <label>Country</label>
+                                    <select  name="country_id" id="country_id" class="my-select">
+                                        <option value="">Select Country</option>
+                                        <t t-foreach="countries" t-as="c">
+                                            <option t-att-value="c.id" t-esc="c.name"/>
+                                        </t>
+                                    </select>
+                                    <small class="error-message-new">Error Message</small>
+                                </div>
+
+                                <div class="my-input-control">
+                                    <label>Brand</label>
+                                    <select name="brand_id" id="brand_id">
+                                        <option value="">Select Brand</option>
+                                        <t t-foreach="brands" t-as="brand">
+                                            <option t-att-value="brand.id" t-esc="brand.name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                <div class="my-input-control">
+                                    <label>Delivery Deadline</label>
+                                    <input name="delivery_deadline" type="date" placeholder=""/>
+                                </div>
+
+                                <div class="my-input-control">
+                                    <label>Order Quantity</label>
+                                    <input name="order_qty" min="1" type="number" placeholder=""/>
+                                </div>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label>Short Description<span class="required">*</span></label>
+                                <input name="short_desc" type="text" required="True" placeholder="Short Description"/>
+                                <small class="error-message-new">Error Message</small>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                <div class="my-input-control">
+                                    <label>Style</label>
+                                    <input name="style" type="text" placeholder=""/>
+                                </div>
+
+                                <div class="my-input-control">
+                                    <label>Color</label>
+                                    <input name="color" type="text" placeholder=""/>
+                                </div>
+                            </div>
+
+                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
+                                <div class="my-input-control">
+                                    <label>Garments Pictures</label>
+                                    <!--                                <input name="garment_pic" type="file"/>-->
+                                    <input type="file"
+                                           class="form-control"
+                                           id="uploaded_garments_file_data"
+                                           name="uploaded_garments_file_data[]"
+                                           multiple="multiple"/>
+                                </div>
+
+                                <div class="my-input-control">
+                                    <label>Dump File</label>
+                                    <!--                                <input name="dump_file" type="file"/>-->
+                                    <input type="file"
+                                           class="form-control"
+                                           id="uploaded_file_data"
+                                           name="uploaded_file_data[]"
+                                           multiple="multiple"/>
+                                </div>
+                            </div>
+
+                            <div class="my-input-control">
+                                <label>Description</label>
+                                <textarea name="description"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+<!--                <div class="footer my-bg-white-off my-p-3 my-d-flex my-gap-6 ">-->
+<!--                        <button class="my-btn-danger my-btn close-btn" type="button">Cancel</button>-->
+<!--                        <button id="create_task_btn" class="my-btn my-primary-btn" type="button">-->
+<!--                            <span class="content">Save</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+                <div class="footer my-bg-white-off my-p-3">
+                    <div class="my-flex-between">
+                        <div>
+                        </div>
+                        <div class="my-d-flex my-align-center my-gap-8">
+                            <button class="my-btn-danger my-btn close-btn">Cancel</button>
+                            <button id="create_task_btn" class="my-btn my-primary-btn">
+                                <span class="content">Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+
+        <script src="/web/static/lib/jquery/jquery.js"></script>
+        <script src="/custom_portal_rss/static/js/main.js"></script>
+        <script src="/custom_portal_rss/static/js/task_create.js"></script>
+
+
         <script>
 
     setTimeout(() => {
