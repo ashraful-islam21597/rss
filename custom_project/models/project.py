@@ -40,6 +40,10 @@ class custom_project(models.Model):
     garments_attachment_ids = fields.Many2many('ir.attachment', 'attachment_garments_project_task_rel', 'task_id', 'garments_attach_id',
                                            string='Add Garments Attachments')
 
+    layout_attachment_ids = fields.Many2many('ir.attachment', 'attachment_layout_project_task_rel', 'task_id',
+                                               'garments_attach_id',
+                                               string='Add Layout/Design Attachments')
+
 
     @api.model
     def create(self, vals):

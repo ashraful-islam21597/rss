@@ -22,6 +22,9 @@ main {
 
 
 
+
+
+
 /*******************************  For Main Page Here  ************************* */
 /* Home page box wrapper Here */
 .box-wrapper .card {
@@ -674,5 +677,27 @@ footer {
 /* Optional: adjust icons inside the actions */
 .file-actions i {
     margin-right: 5px;
+}
+
+.notification-box {
+        background: #e6ffed;
+        border: 1px solid #00b74a;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        width: fit-content;
+        margin: 10px;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+}
+.notification-box.active {
+    opacity: 1;
+}
+
+
+.error-message-new {
+    display: none;
+    color: red;
+    font-size: 12px;
 }
 

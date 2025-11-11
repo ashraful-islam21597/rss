@@ -10,8 +10,15 @@ $(document).ready(function () {
         const short_desc = formData.get('short_desc');
         const buyer_name = formData.get('buyer_id');
         const country_id = formData.get('country_id');
-//        const short_desc = formData.get('short_desc');
         console.log(country_id,buyer_id,short_desc)
+
+        if (!buyer_name) {
+            $('select[name="buyer_id"]').next('.error-message-new')
+                .text("Buyer Name is required.")
+                .show();
+
+            return false;
+        }
 
         if (!country_id) {
             $('select[name="country_id"]').next('.error-message-new')
@@ -37,14 +44,6 @@ $(document).ready(function () {
             return false;
         }
 
-        if (!buyer_name) {
-            $('select[name="buyer_id"]').next('.error-message-new')
-                .text("Buyer Name is required.")
-                .show();
-
-            return false;
-        }
-
         $.ajax({
             url: `/rss/task/create/${project_id}`,
             type: 'POST',
@@ -52,14 +51,10 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(response){
-
-                alert("Task submitted successfully!");
-                 $('#create-article-modal').hide();
+                alert("Task submitted successfully.");
+                $('#create-article-modal').hide();
                 $('.modal-overlay').hide();
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
-
+                location.reload(true);
             },
             error: function(err){
                 alert("Failed to submit task.");

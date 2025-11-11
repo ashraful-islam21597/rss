@@ -54,17 +54,8 @@
 
         <footer>
             <p>Design by <a href="https://www.xsellencebdltd.com/">xsellence bangladesh ltd</a> Odoo
-                <span class="gold">
-                    Gold
-                    Partner
-                </span>
+                <span class="gold">Gold Partner</span>
             </p>
         </footer>
-
-
-
-
-
-
     </template>
 </odoo>

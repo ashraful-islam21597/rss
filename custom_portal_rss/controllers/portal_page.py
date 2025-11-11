@@ -191,7 +191,11 @@ class CustomPortal(http.Controller):
     @http.route(['/rss/<int:project_id>', '/rss/<int:project_id>/<int:task_id>'], type='http', auth='user', website=True)
     def custom_portal_base(self,project_id=None, task_id=None, **kw):
         if project_id:
-            TaskModel = request.env['project.task'].sudo().search([('project_id','=',project_id)])
+            TaskModel = request.env['project.task'].sudo().search(
+                [('project_id', '=', project_id)],
+                order='create_date desc'
+            )
+
             all_tasks = TaskModel
         else:
             TaskModel = request.env['project.task'].sudo()
@@ -231,7 +235,7 @@ class CustomPortal(http.Controller):
             })
             return request.render('custom_portal_rss.portal_form_view_page', page_vals)
 
-        #all_tasks = TaskModel.search([])
+
         stages = request.env['project.task.type'].sudo().search([])
         page_vals.update({
             'task_list': all_tasks,
@@ -239,9 +243,9 @@ class CustomPortal(http.Controller):
             'brands': brands,
             'buyer': buyer,
             'project_id':project_id,
-            'pending_tasks': all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])]),
+            'pending_tasks': all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])],order='create_date desc'),
             'pending_tasks_count': len(all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])])),
-            'done_tasks': all_tasks.search([('stage_id.name', 'in', ['Done','Delivered'])]),
+            'done_tasks': all_tasks.search([('stage_id.name', 'in', ['Done','Delivered'])],order='create_date desc'),
             'done_tasks_count': len(all_tasks.search([('stage_id.name', 'in', ['Done','Delivered'])])),
         })
 
@@ -336,16 +340,38 @@ class CustomPortal(http.Controller):
         })
 
     @http.route('/rss/design/task/save', csrf=False, type='http', auth='user', website=True, methods=['POST'])
-    def save_task_layout_team(self, **post):
-        task_id = post.get('task_id')
+    def save_task_layout_team(self, **kwargs):
+        task_id = kwargs.get('task_id')
         if not task_id:
             return request.redirect('/rss/task/list')
 
         task = request.env['project.task'].sudo().browse(int(task_id))
-        uploaded_layout_file_file = request.httprequest.files.get('layout_file')
+        #uploaded_layout_file_file = request.httprequest.files.get('layout_file')
         # if uploaded_layout_file_file:
         #     task.layout_file = base64.b64encode(uploaded_layout_file_file.read())
         #     task.layout_filename = uploaded_layout_file_file.filename
+
+        uploaded_layout_files = request.httprequest.files.getlist('layout_file[]')
+        attachment_ids = []
+
+        for file in uploaded_layout_files:
+            content = file.read()
+            if not content:
+                continue
+            attachment = request.env['ir.attachment'].sudo().create({
+                'name': file.filename,
+                'datas': base64.b64encode(content),
+                'type': 'binary',
+                'res_model': 'project.task',
+                'res_id': task.id,
+                'mimetype': file.content_type or 'application/octet-stream',
+            })
+            attachment_ids.append(attachment.id)
+
+        if attachment_ids:
+            task.sudo().write({
+                'layout_attachment_ids': [(6, 0, attachment_ids)]  # works if Many2many
+            })
 
         countries = request.env['res.country'].sudo().search([])
         brands = request.env['buyer.brand'].sudo().search([])
@@ -360,9 +386,18 @@ class CustomPortal(http.Controller):
         #     task.sudo().write({'stage_id': stage.id})
         # task.state = '01_in_progress'
 
-        # email_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'DEFAULT')])
-        # email_to = task.vendor_id.email
-        # self.email_from_lauout_design_team(task,email_server,email_to)
+        email_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'DEFAULT')])
+        email_to = task.vendor_id.email
+        self.email_from_layout_design_team(task,email_server,email_to)
+
+        stage = request.env['project.task.type'].sudo().search([
+            ('name', 'ilike', 'In Progress'),
+            ('project_ids', 'in', task.project_id.id)
+        ], limit=1)
+
+        if stage:
+            task.sudo().write({'stage_id': stage.id})
+        task.state = '01_in_progress'
 
         return request.render('custom_portal_rss.portal_form_view_page', {
             'task_view': task,
@@ -372,78 +407,78 @@ class CustomPortal(http.Controller):
             'toast':True,
         })
 
-    @http.route('/rss/buyer/task/save', csrf=False, type='http', auth='user', website=True, methods=['POST'])
-    def save_task_buyer(self, **post):
-        task_id = post.get('task_id')
-        if not task_id:
-            return request.redirect('/rss/task/list')
-
-        task = request.env['project.task'].sudo().browse(int(task_id))
-        state = post.get('state')
-        note = post.get('note')
-        approved_by = post.get('approved_by')
-        approved_date = post.get('approved_date')
-        # state = fields.Selection([
-        #     ('01_in_progress', 'In Progress'),
-        #     ('02_changes_requested', 'Changes Requested'),
-        #     ('03_approved', 'Approved'),
-        #     *CLOSED_STATES.items(),
-        #     ('04_waiting_normal', 'Waiting'),
-        # ], string='State', copy=False, default='01_in_progress', required=True, compute='_compute_state',
-        #     inverse='_inverse_state', readonly=False, store=True, index=True, recursive=True, tracking=True)
-
-
-        if state:
-             task.state = '03_approved'
-        if approved_by:
-            task.approved_by = request.env.user.id
-        if approved_date:
-            task.approved_date = approved_date
-
-        if note:
-            task.note = note
-
-
-        countries = request.env['res.country'].sudo().search([])
-        brands = request.env['buyer.brand'].sudo().search([])
-        state_selection = request.env['project.task']._fields['state'].selection
-        # stages = request.env['project.task.type'].sudo().search([])
-        # stage_id = request.env['project.task.type'].sudo().search([
-        #     ('name', 'ilike', 'Approved')
-        # ], limit=1)
-        #
-        # if stage_id:
-        #     task.sudo().write({'stage_id': stage_id.id})
-
-        if state == '03_approved':
-            stage = request.env['project.task.type'].sudo().search([
-                ('name', 'ilike', 'Done'),
-                ('project_ids', 'in', task.project_id.id)
-            ], limit=1)
-
-            if stage:
-                task.sudo().write({'stage_id': stage.id})
-            task.state = '03_approved'
-        # if state == '03_approved':
-        #     stage = request.env['project.task.type'].sudo().search([
-        #         ('name', 'ilike', 'Approved'),
-        #         ('project_ids', 'in', task.project_id.id)
-        #     ], limit=1)
-        #
-        #     if stage:
-        #         task.sudo().write({'stage_id': stage.id})
-        #     task.state = '03_approved'
-
-
-
-        return request.render('custom_portal_rss.portal_form_view_page', {
-            'task_view': task,
-            'countries': countries,
-            'brand': brands,
-            'state_selection': state_selection,
-            'toast_message': 'Buyer Data Uploaded successfully!',
-            'toast':True,
-        })
+    # @http.route('/rss/buyer/task/save', csrf=False, type='http', auth='user', website=True, methods=['POST'])
+    # def save_task_buyer(self, **post):
+    #     task_id = post.get('task_id')
+    #     if not task_id:
+    #         return request.redirect('/rss/task/list')
+    #
+    #     task = request.env['project.task'].sudo().browse(int(task_id))
+    #     state = post.get('state')
+    #     note = post.get('note')
+    #     approved_by = post.get('approved_by')
+    #     approved_date = post.get('approved_date')
+    #     # state = fields.Selection([
+    #     #     ('01_in_progress', 'In Progress'),
+    #     #     ('02_changes_requested', 'Changes Requested'),
+    #     #     ('03_approved', 'Approved'),
+    #     #     *CLOSED_STATES.items(),
+    #     #     ('04_waiting_normal', 'Waiting'),
+    #     # ], string='State', copy=False, default='01_in_progress', required=True, compute='_compute_state',
+    #     #     inverse='_inverse_state', readonly=False, store=True, index=True, recursive=True, tracking=True)
+    #
+    #
+    #     if state:
+    #          task.state = '03_approved'
+    #     if approved_by:
+    #         task.approved_by = request.env.user.id
+    #     if approved_date:
+    #         task.approved_date = approved_date
+    #
+    #     if note:
+    #         task.note = note
+    #
+    #
+    #     countries = request.env['res.country'].sudo().search([])
+    #     brands = request.env['buyer.brand'].sudo().search([])
+    #     state_selection = request.env['project.task']._fields['state'].selection
+    #     # stages = request.env['project.task.type'].sudo().search([])
+    #     # stage_id = request.env['project.task.type'].sudo().search([
+    #     #     ('name', 'ilike', 'Approved')
+    #     # ], limit=1)
+    #     #
+    #     # if stage_id:
+    #     #     task.sudo().write({'stage_id': stage_id.id})
+    #
+    #     if state == '03_approved':
+    #         stage = request.env['project.task.type'].sudo().search([
+    #             ('name', 'ilike', 'Done'),
+    #             ('project_ids', 'in', task.project_id.id)
+    #         ], limit=1)
+    #
+    #         if stage:
+    #             task.sudo().write({'stage_id': stage.id})
+    #         task.state = '03_approved'
+    #     # if state == '03_approved':
+    #     #     stage = request.env['project.task.type'].sudo().search([
+    #     #         ('name', 'ilike', 'Approved'),
+    #     #         ('project_ids', 'in', task.project_id.id)
+    #     #     ], limit=1)
+    #     #
+    #     #     if stage:
+    #     #         task.sudo().write({'stage_id': stage.id})
+    #     #     task.state = '03_approved'
+    #
+    #
+    #
+    #     return request.render('custom_portal_rss.portal_form_view_page', {
+    #         'task_view': task,
+    #         'countries': countries,
+    #         'brand': brands,
+    #         'state_selection': state_selection,
+    #         'toast_message': 'Buyer Data Uploaded successfully!',
+    #         'toast':True,
+    #     })
 
 
     def email_from_vendor(self,email_server,email_to):
@@ -465,42 +500,121 @@ class CustomPortal(http.Controller):
 
     # def email_from_lauout_design_team(self,task,email_server,email_to):
     #     if email_server and email_to:
-    #         # subject = 'Layout Design Updated'
-    #         # body_html = 'hello sir, Your expected layout design has been updated please check now'
-    #         # email_values = {
-    #         #     'subject': subject,
-    #         #     'body_html': body_html,
-    #         #     'email_to': email_to,
-    #         #     'auto_delete': False,
-    #         #     'email_from': email_server.smtp_user,
-    #         # }
-    #         #
-    #         # mail_id = request.env['mail.mail'].sudo().create(email_values)
-    #         # mail_id.sudo().send()
+    #         subject = f"Updated Layout Design for Your Review – {task.name}"
+    #         body_html = f"""
+    #                 <div style="font-family: Arial, sans-serif; color: #333; font-size: 14px; line-height: 1.6;">
+    #                     <p>Hi Sir/Ma’am,</p>
+    #                     <p>We’ve prepared the attached layout as per your specifications.</p>
+    #                     <p>
+    #                         Could you please take a moment to review it and confirm if it’s okay to proceed?
+    #                         If you’d like any changes, just let us know — we’ll revise it right away.
+    #                     </p>
+    #                     <p>Thanks for your time and support!</p>
+    #                     <br>
+    #                     <p>Regards, <br>
+    #                     <strong>{request.env.user.name}</strong><br>
+    #                     Cell: {request.env.user.phone}
+    #                     </p>
+    #                 </div>
+    #                 """
+    #         email_values = {
+    #             'subject': subject,
+    #             'body_html': body_html,
+    #             'email_to': email_to,
+    #             'auto_delete': False,
+    #             'email_from': email_server.smtp_user,
+    #         }
     #
-    #         template = request.env.ref('custom_portal_rss.email_template_task_created')
-    #         mail = template.send_mail(task.id, force_send=True)
-    #         return mail
+    #         mail_id = request.env['mail.mail'].sudo().create(email_values)
+    #         mail_id.sudo().send()
     #
+    #         # template = request.env.ref('custom_portal_rss.email_template_task_created')
+    #         # mail = template.send_mail(task.id, force_send=True)
+    #         # return mail
+
+    # def email_from_lauout_design_team(self,task,email_server,email_to):
+    #     if not task or not task.vendor_id.email:
+    #         return False
     #
-    def email_from_lauout_design_team(self,task,email_server,email_to):
-        if not task or not task.vendor_id.email:
+    #     # Ensure mail server exists
+    #     # email_server = request.env['ir.mail_server'].sudo().search([], limit=1)
+    #     if not email_server:
+    #
+    #         return False
+    #
+    #     try:
+    #         template = request.env.ref('custom_portal_rss.email_template_task_created').sudo()
+    #         template.with_context(
+    #             email_to=email_to,
+    #             default_email_from=email_server.smtp_user,
+    #         ).send_mail(task.id, force_send=True)
+    #         return True
+    #     except Exception as e:
+    #         return False
+
+    def email_from_layout_design_team(self, task, email_server, email_to):
+        if not (email_server and email_to and task):
             return False
 
-        # Ensure mail server exists
-        # email_server = request.env['ir.mail_server'].sudo().search([], limit=1)
-        if not email_server:
+        task_details = {
+            'Task Name': task.name,
+            'Task ID': task.task_id,
+            'PO Number': task.po.name or '-',
+            'Buyer': task.buyer_id.name if task.buyer_id else '-',
+            'Country': task.country_id.name if task.country_id else '-',
+            'Deadline': task.date_deadline.strftime('%Y-%m-%d') if task.date_deadline else '-',
+            'Stage': task.stage_id.name if task.stage_id else '-',
+        }
 
-            return False
+        subject = f"Updated Layout Design for Your Review – {task.name or 'Layout Task'}"
+        table_rows = ""
+        for key, value in task_details.items():
+            table_rows += f"""
+            <tr>
+                <td style="padding: 8px; border: 1px solid #333; font-weight: bold;">{key}</td>
+                <td style="padding: 8px; border: 1px solid #333;">{value}</td>
+            </tr>
+            """
+        body_html = f"""
+                   <div style="font-family: Arial, sans-serif; color: #333; font-size: 14px; line-height: 1.6;">
+                       <p>Hi Sir/Ma’am,</p>
+                       <p>We’ve prepared the attached layout as per your specifications.</p>
+                       <p>
+                           Could you please take a moment to review it and confirm if it’s okay to proceed?
+                           If you’d like any changes, just let us know — we’ll revise it right away.
+                       </p>
+                       <p>Thanks for your time and support!</p>
+                       <br>
+                       <table style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+                            {table_rows}
+                        </table>
+                       <p>Regards, <br>
+                       <strong>{request.env.user.name}</strong><br>
+                       Cell: {request.env.user.phone}
+                       </p>
+                   </div>
+                   """
 
-        try:
-            template = request.env.ref('custom_portal_rss.email_template_task_created').sudo()
-            # Optional: update context if needed
-            template.with_context(
-                email_to=email_to,
-                default_email_from=email_server.smtp_user,
-            ).send_mail(task.id, force_send=True)
-            return True
-        except Exception as e:
-            return False
+        email_values = {
+            'subject': subject,
+            'body_html': body_html,
+            'email_to': email_to,
+            'auto_delete': False,
+            'email_from': email_server.smtp_user,
+            'attachment_ids': [(6, 0, task.layout_attachment_ids.ids)]
+        }
+
+        Mail = request.env['mail.mail'].sudo()
+        mail_id = Mail.create(email_values)
+
+        if task.attachment_ids:
+            for attachment in task.attachment_ids:
+                attachment.copy(default={
+                    'res_model': 'mail.mail',
+                    'res_id': mail_id.id
+                })
+        mail_id.sudo().send()
+
+        return True
+
 
