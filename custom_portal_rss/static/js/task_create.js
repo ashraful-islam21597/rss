@@ -54,7 +54,7 @@ $(document).ready(function () {
                 alert("Task submitted successfully.");
                 $('#create-article-modal').hide();
                 $('.modal-overlay').hide();
-                location.reload(true);
+                location.href = location.href.split('?')[0] + '?_=' + new Date().getTime();
             },
             error: function(err){
                 alert("Failed to submit task.");

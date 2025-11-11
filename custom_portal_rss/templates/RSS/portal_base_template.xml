@@ -438,12 +438,13 @@
 
                                 <div class="my-input-control">
                                     <label>Brand</label>
-                                    <select name="brand_id" id="brand_id">
-                                        <option value="">Select Brand</option>
-                                        <t t-foreach="brands" t-as="brand">
-                                            <option t-att-value="brand.id" t-esc="brand.name"/>
-                                        </t>
-                                    </select>
+<!--                                    <select name="brand_id" id="brand_id">-->
+<!--                                        <option value="">Select Brand</option>-->
+<!--                                        <t t-foreach="brands" t-as="brand">-->
+<!--                                            <option t-att-value="brand.id" t-esc="brand.name"/>-->
+<!--                                        </t>-->
+<!--                                    </select>-->
+                                    <input name="brand_id" type="text" placeholder="Brand"/>
                                 </div>
                             </div>
 

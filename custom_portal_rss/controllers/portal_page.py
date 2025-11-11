@@ -103,13 +103,14 @@ class CustomPortal(http.Controller):
                 except:
                     print("All date format conversions failed")
         po = request.env['project.purchase.order'].sudo().create({'name':kwargs.get('po_number')})
+        brand = request.env['buyer.brand'].sudo().create({'name':kwargs.get('brand_id')})
         task_vals = {
             'project_id': project.id,
             'name': kwargs.get('short_desc', task_identifier),
             'po': po.id,
             'country_id': kwargs.get('country_id'),
             'buyer_id': kwargs.get('buyer_id'),
-            'brand_id': kwargs.get('brand_id'),
+            'brand_id': brand.id,
             'order_qty': kwargs.get('order_qty'),
             'date_deadline': date_deadline,
             'style': kwargs.get('style'),
@@ -386,9 +387,7 @@ class CustomPortal(http.Controller):
         #     task.sudo().write({'stage_id': stage.id})
         # task.state = '01_in_progress'
 
-        email_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'DEFAULT')])
-        email_to = task.vendor_id.email
-        self.email_from_layout_design_team(task,email_server,email_to)
+
 
         stage = request.env['project.task.type'].sudo().search([
             ('name', 'ilike', 'In Progress'),
@@ -398,6 +397,10 @@ class CustomPortal(http.Controller):
         if stage:
             task.sudo().write({'stage_id': stage.id})
         task.state = '01_in_progress'
+
+        email_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'DEFAULT')])
+        email_to = task.vendor_id.email
+        self.email_from_layout_design_team(task, email_server, email_to)
 
         return request.render('custom_portal_rss.portal_form_view_page', {
             'task_view': task,
