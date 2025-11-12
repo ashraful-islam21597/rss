@@ -52,12 +52,6 @@
 
                     <!--========== Left Side Task ===========-->
                     <div class="pending-task-wrapper card">
-
-                        <!-- BOx Head -->
-                        <!--                        <div class="my-d-flex my-gap-2 my-align-center">-->
-                        <!--                            <h2 class="my-fs-xl my-text-primary">Pending Task</h2>-->
-                        <!--                            <span class="my-fs-xs">(220)</span>-->
-                        <!--                        </div>-->
                         <div class="my-d-flex my-gap-2 my-align-center">
                             <h2 class="my-fs-xl my-text-primary">Pending Task</h2>
                             <span class="my-fs-sm my-text-muted fw-semibold">(<t t-esc="pending_tasks_count"/>)
@@ -267,131 +261,6 @@
                     <h3 class="modal-head ">Vendor Information</h3>
                     <button class="my-btn close-btn">✖</button>
                 </div>
-               <!-- <form id="TaskDetailsForm" action="/rss/task/create" method="post" enctype="multipart/form-data" class="modal-body my-has-scrollbar">
-                    <div class=" ">
-                        <div class="my-flex-column my-gap-10">
-
-                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
-                                &lt;!&ndash; For Buyer Name &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label for="task-name">Buyer Name</label>
-                                    <select name="" id="">
-                                        <option value="">Md Tanvir</option>
-                                        <option value="">Md Foysal</option>
-                                        <option value="">Hasan Khan</option>
-                                    </select>
-                                </div>
-
-                                &lt;!&ndash; For PO Number &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">PO Number <span class="required">*</span></label>
-                                    <input name="po_number" type="text" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                            </div>
-
-                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
-                                &lt;!&ndash; For Country &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label for="task-name">Country</label>
-                                    <select name="" id="">
-                                        <option value="">Bangladesh</option>
-                                        <option value="">Pakistan</option>
-                                        <option value="">Nepal</option>
-                                    </select>
-                                </div>
-
-                                &lt;!&ndash; For Brand &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label for="task-name">Brand</label>
-                                    <select name="Brand" id="">
-                                        <option value="">Brand</option>
-                                        <option value="">Apex</option>
-                                        <option value="">Bata</option>
-                                        <option value="">Pakiaza</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
-                                &lt;!&ndash; For Delivery Deadline &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">Delivery Deadline <span class="required">*</span></label>
-                                    <input type="date" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-
-                                &lt;!&ndash; For Order QTy &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">Order Quantity <span class="required">*</span></label>
-                                    <input min="1" type="number" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                            </div>
-
-                            <div class="my-grid-1">
-                                &lt;!&ndash; For Short Description &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">Short Description <span class="required">*</span></label>
-                                    <input min="1" type="number" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                            </div>
-
-                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
-                                &lt;!&ndash; For Style &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">Style <span class="required">*</span></label>
-                                    <input type="texy" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                                &lt;!&ndash; For Color &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">Color <span class="required">*</span></label>
-                                    <input type="text" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                            </div>
-
-                            <div class="my-grid-2 my-gap-10 my-grid-md-1">
-                                &lt;!&ndash; For Garments Pictures &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class="">Garments Pictures <span class="required">*</span></label>
-                                    <input type="file" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                                &lt;!&ndash; For Short Description &ndash;&gt;
-                                <div class="my-input-control">
-                                    <label class=""> Dump File <span class="required">*</span></label>
-                                    <input type="file" placeholder=""/>
-                                    <small class="error-message-new">Error Message</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="my-mt-10">
-                            &lt;!&ndash; For Long Description &ndash;&gt;
-                            <div class="my-input-control">
-                                <label class="">Description</label>
-                                <textarea name="" id=""></textarea>
-                                <small class="error-message-new">Error Message</small>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="footer my-bg-white-off my-p-3">
-                    <div class="my-flex-between">
-                        <div>
-                        </div>
-                        <div class="my-d-flex my-align-center my-gap-8">
-                            <button class="my-btn-danger my-btn close-btn">Cancel</button>
-                            <button id="create_task_btn" class="my-btn my-primary-btn">
-                                <span class="content">Save</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                </form>-->
                 <div  class="modal-body my-has-scrollbar">
                     <div>
                         <input type="hidden" name="project_id" t-att-value="project_id"/>
@@ -413,12 +282,6 @@
                                     <label>PO Number
                                         <span class="required">*</span>
                                     </label>
-<!--                                    <select required="1" name="po_number" id="po_number" class="my-select">-->
-<!--                                        <option value="">Select PO Number</option>-->
-<!--                                        <t t-foreach="po_list" t-as="po">-->
-<!--                                            <option t-att-value="po.id" t-esc="po.name"/>-->
-<!--                                        </t>-->
-<!--                                    </select>-->
                                     <input name="po_number" type="text" placeholder=""/>
                                     <small class="error-message-new">Error Message</small>
                                 </div>
@@ -438,12 +301,6 @@
 
                                 <div class="my-input-control">
                                     <label>Brand</label>
-<!--                                    <select name="brand_id" id="brand_id">-->
-<!--                                        <option value="">Select Brand</option>-->
-<!--                                        <t t-foreach="brands" t-as="brand">-->
-<!--                                            <option t-att-value="brand.id" t-esc="brand.name"/>-->
-<!--                                        </t>-->
-<!--                                    </select>-->
                                     <input name="brand_id" type="text" placeholder="Brand"/>
                                 </div>
                             </div>
@@ -508,12 +365,6 @@
 
                     </div>
                 </div>
-<!--                <div class="footer my-bg-white-off my-p-3 my-d-flex my-gap-6 ">-->
-<!--                        <button class="my-btn-danger my-btn close-btn" type="button">Cancel</button>-->
-<!--                        <button id="create_task_btn" class="my-btn my-primary-btn" type="button">-->
-<!--                            <span class="content">Save</span>-->
-<!--                        </button>-->
-<!--                    </div>-->
                 <div class="footer my-bg-white-off my-p-3">
                     <div class="my-flex-between">
                         <div>

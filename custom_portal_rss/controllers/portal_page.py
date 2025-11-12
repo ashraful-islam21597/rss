@@ -636,3 +636,149 @@ class CustomPortal(http.Controller):
         return True
 
 
+
+
+
+
+
+
+    #*********************UPDATED PROCESS*************************#
+
+    # @http.route('/rss/task/create/<int:project_id>', type='http', methods=['POST'], auth='user', csrf=False,
+    #             website=True)
+    # def create_task(self, project_id=None, **kwargs):
+    #     """Main route for creating a task from the portal"""
+    #     _logger.info(f"🚀 Starting task creation for project_id={project_id}")
+    #     try:
+    #         project = self._get_project(project_id)
+    #         po = self._create_po(kwargs)
+    #         brand = self._create_brand(kwargs)
+    #         date_deadline = self._parse_deadline(kwargs.get('delivery_deadline'))
+    #
+    #         task_vals = self._prepare_task_vals(project, po, brand, date_deadline, kwargs)
+    #         task = request.env['project.task'].with_user(SUPERUSER_ID).create(task_vals)
+    #         _logger.info(f"Task created successfully: {task.name} ({task.id})")
+    #
+    #         # Attach files
+    #         uploaded_dump_files = request.httprequest.files.getlist('uploaded_file_data[]')
+    #         uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
+    #
+    #         self._attach_files(task, uploaded_dump_files, 'dump_attachment_ids')
+    #         self._attach_files(task, uploaded_garments_files, 'garments_attachment_ids')
+    #
+    #         request.env.cr.commit()
+    #         _logger.info(f"🎯 Task {task.name} created successfully with all required files.")
+    #         # return request.make_response("Task created successfully with all attachments.", status=200)
+    #         return "success"
+    #
+    #     except Exception as e:
+    #         request.env.cr.rollback()
+    #         _logger.exception("Task creation failed:")
+    #         return request.make_response(f" Task creation failed: {str(e)}", status=500)
+    #
+    # # -------------------------------------------------------------------------
+    # # HELPER METHODS
+    # # -------------------------------------------------------------------------
+    #
+    # def _get_project(self, project_id):
+    #     """Fetch and validate project"""
+    #     project = request.env['project.project'].with_user(SUPERUSER_ID).browse(project_id)
+    #     if not project.exists():
+    #         _logger.error(f" Invalid project ID: {project_id}")
+    #         raise UserError("Invalid project.")
+    #     return project
+    #
+    # def _create_po(self, kwargs):
+    #     """Create purchase order"""
+    #     po_name = kwargs.get('po_number')
+    #     if not po_name:
+    #         raise UserError("PO number is required.")
+    #     po = request.env['project.purchase.order'].with_user(SUPERUSER_ID).create({'name': po_name})
+    #     _logger.info(f"📦 Purchase Order created: {po.name} ({po.id})")
+    #     return po
+    #
+    # def _create_brand(self, kwargs):
+    #     """Create brand record"""
+    #     brand_name = kwargs.get('brand_id')
+    #     if not brand_name:
+    #         raise UserError("Brand name is required.")
+    #     brand = request.env['buyer.brand'].with_user(SUPERUSER_ID).create({'name': brand_name})
+    #     _logger.info(f"🏷 Brand created: {brand.name} ({brand.id})")
+    #     return brand
+    #
+    # def _parse_deadline(self, delivery_deadline):
+    #     """Parse and adjust delivery deadline date"""
+    #     if not delivery_deadline:
+    #         return False
+    #     try:
+    #         if ' ' in delivery_deadline:
+    #             date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d %H:%M:%S')
+    #         else:
+    #             date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d')
+    #         date_obj = date_obj + timedelta(hours=6)
+    #         return date_obj.strftime('%Y-%m-%d %H:%M:%S')
+    #     except Exception:
+    #         _logger.warning(f" Invalid date format: {delivery_deadline}")
+    #         raise UserError("Invalid date format for deadline.")
+    #
+    # def _prepare_task_vals(self, project, po, brand, date_deadline, kwargs):
+    #     """Prepare dictionary for project.task create()"""
+    #     seq = request.env['ir.sequence'].with_user(SUPERUSER_ID).next_by_code('project.task.custom')
+    #     task_identifier = f"RSS / {date.today().year} / {seq}"
+    #
+    #     task_vals = {
+    #         'project_id': project.id,
+    #         'name': kwargs.get('short_desc') or task_identifier,
+    #         'po': po.id,
+    #         'country_id': kwargs.get('country_id'),
+    #         'buyer_id': kwargs.get('buyer_id'),
+    #         'brand_id': brand.id,
+    #         'order_qty': kwargs.get('order_qty'),
+    #         'date_deadline': date_deadline,
+    #         'style': kwargs.get('style'),
+    #         'color': kwargs.get('color'),
+    #         'task_id': task_identifier,
+    #         'note': kwargs.get('description'),
+    #         'vendor_id': request.env.user.partner_id.id,
+    #     }
+    #     return task_vals
+    #
+    # def _attach_files(self, task, file_list, field_name):
+    #     """Attach uploaded files to the given task.
+    #        - Every uploaded file must be saved successfully.
+    #        - If any fails, the whole transaction rolls back.
+    #     """
+    #     if not file_list:
+    #         _logger.info(f"📂 No files provided for {field_name}")
+    #         return
+    #
+    #     attachment_ids = []
+    #     for file in file_list:
+    #         if not file.filename:
+    #             raise UserError(f"A file for {field_name} is missing a name.")
+    #
+    #         content = file.read()
+    #         if not content:
+    #             raise UserError(f"File '{file.filename}' for {field_name} is empty or unreadable.")
+    #
+    #         try:
+    #             attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
+    #                 'name': file.filename,
+    #                 'datas': base64.b64encode(content),
+    #                 'type': 'binary',
+    #                 'res_model': 'project.task',
+    #                 'res_id': task.id,
+    #                 'mimetype': file.content_type or 'application/octet-stream',
+    #             })
+    #             attachment_ids.append(attachment.id)
+    #             _logger.info(f"📎 Attached file '{file.filename}' → task {task.id}")
+    #         except Exception as e:
+    #             raise UserError(f"Failed to attach file '{file.filename}': {str(e)}")
+    #
+    #     if not attachment_ids:
+    #         raise UserError(f"No valid files attached for {field_name}.")
+    #
+    #     task.with_user(SUPERUSER_ID).write({field_name: [(6, 0, attachment_ids)]})
+    #     _logger.info(f" {len(attachment_ids)} attachments saved for {field_name}.")
+
+
