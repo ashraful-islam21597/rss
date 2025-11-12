@@ -25,7 +25,7 @@
                 <div class="search-and-create-btn my-mt-20 my-flex-btween my-align-center my-w-100-p">
 
                     <!-- Search Here -->
-                    <form action="#" class="my-bg-white-off my-p-4 my-radius-md shadow-sm">
+                    <form enctype="multipart/form-data" action="#" class="my-bg-white-off my-p-4 my-radius-md shadow-sm">
                         <div class="my-input-group my-d-flex my-align-center">
                             <input type="text" placeholder="Search by Task ID" />
 
@@ -262,7 +262,7 @@
         <div class="modal-overlay"></div>
 
         <div class="my-modal " id="create-article-modal">
-            <form id="TaskDetailsForm" class="modal-content">
+            <form id="TaskDetailsForm" class="modal-content" enctype="multipart/form-data">
                 <div class="header">
                     <h3 class="modal-head ">Vendor Information</h3>
                     <button class="my-btn close-btn">✖</button>
