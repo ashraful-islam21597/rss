@@ -1,10 +1,12 @@
 import base64
+import logging
 from datetime import date, datetime, timedelta
 
 from odoo import http, SUPERUSER_ID
 from odoo.http import request
 import json
-
+import traceback
+_logger = logging.getLogger(__name__)
 
 class CustomPortal(http.Controller):
 
@@ -75,120 +77,120 @@ class CustomPortal(http.Controller):
 
     @http.route('/rss/task/create/<int:project_id>', type='http', methods=['POST'], auth='user', csrf=False, website=True)
     def create_task(self, project_id=None, **kwargs):
-        project = request.env['project.project'].with_user(SUPERUSER_ID).browse(project_id)
-        if not project.exists():
-            # return request.not_found()
-            return request.make_response("Task not created.")
+        try:
+            project = request.env['project.project'].with_user(SUPERUSER_ID).browse(project_id)
+            if not project.exists():
+                # return request.not_found()
+                return request.make_response("Task not created.")
 
-        seq = request.env['ir.sequence'].with_user(SUPERUSER_ID).next_by_code('project.task.custom')
-        task_identifier = f"RSS / {date.today().year} / {seq}"
+            _logger.info(f'project ------------------- {project}')
 
-        delivery_deadline = kwargs.get('delivery_deadline')
+            seq = request.env['ir.sequence'].with_user(SUPERUSER_ID).next_by_code('project.task.custom')
+            task_identifier = f"RSS / {date.today().year} / {seq}"
 
-        date_deadline = False
-        if delivery_deadline:
-            try:
-                if ' ' in delivery_deadline:
-                    date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d %H:%M:%S')
-                else:
-                    date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d')
-                date_obj = date_obj + timedelta(hours=6)
+            delivery_deadline = kwargs.get('delivery_deadline')
 
-                date_deadline = date_obj.strftime('%Y-%m-%d %H:%M:%S')
-
-            except ValueError as e:
-                print(f"Date conversion error: {e}")
+            date_deadline = False
+            if delivery_deadline:
                 try:
-                    date_obj = datetime.strptime(delivery_deadline, '%d-%m-%Y')
+                    if ' ' in delivery_deadline:
+                        date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d %H:%M:%S')
+                    else:
+                        date_obj = datetime.strptime(delivery_deadline, '%Y-%m-%d')
+                    date_obj = date_obj + timedelta(hours=6)
+
                     date_deadline = date_obj.strftime('%Y-%m-%d %H:%M:%S')
-                except:
-                    print("All date format conversions failed")
-        po = request.env['project.purchase.order'].with_user(SUPERUSER_ID).create({'name':kwargs.get('po_number')})
-        brand = request.env['buyer.brand'].with_user(SUPERUSER_ID).create({'name':kwargs.get('brand_id')})
-        task_vals = {
-            'project_id': project.id,
-            'name': kwargs.get('short_desc', task_identifier),
-            'po': po.id,
-            'country_id': kwargs.get('country_id'),
-            'buyer_id': kwargs.get('buyer_id'),
-            'brand_id': brand.id,
-            'order_qty': kwargs.get('order_qty'),
-            'date_deadline': date_deadline,
-            'style': kwargs.get('style'),
-            'color': kwargs.get('color'),
-            'task_id': task_identifier,
-            'note': kwargs.get('description'),
-            'vendor_id' : request.env.user.partner_id.id,
-        }
-        task = request.env['project.task'].with_user(SUPERUSER_ID).create(task_vals)
 
-        uploaded_dump_files = request.httprequest.files.getlist('uploaded_file_data[]')
-        attachment_ids = []
+                except ValueError as e:
+                    print(f"Date conversion error: {e}")
+                    try:
+                        date_obj = datetime.strptime(delivery_deadline, '%d-%m-%Y')
+                        date_deadline = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+                    except:
+                        print("All date format conversions failed")
+            po = request.env['project.purchase.order'].with_user(SUPERUSER_ID).create({'name':kwargs.get('po_number')})
+            _logger.info(f'po  ---------------  {po}')
+
+            brand = request.env['buyer.brand'].with_user(SUPERUSER_ID).create({'name':kwargs.get('brand_id')})
+            _logger.info(f'brand ---------------- {brand}')
+
+            task_vals = {
+                'project_id': project.id,
+                'name': kwargs.get('short_desc', task_identifier),
+                'po': po.id,
+                'country_id': kwargs.get('country_id'),
+                'buyer_id': kwargs.get('buyer_id'),
+                'brand_id': brand.id,
+                'order_qty': kwargs.get('order_qty'),
+                'date_deadline': date_deadline,
+                'style': kwargs.get('style'),
+                'color': kwargs.get('color'),
+                'task_id': task_identifier,
+                'note': kwargs.get('description'),
+                'vendor_id' : request.env.user.partner_id.id,
+            }
+            task = request.env['project.task'].with_user(SUPERUSER_ID).create(task_vals)
+            _logger.info(f'task ---------------- {task.read()}')
+            uploaded_dump_files = request.httprequest.files.getlist('uploaded_file_data[]')
+            attachment_ids = []
 
 
-        for file in uploaded_dump_files:
-            content = file.read()
-            if not content:
-                continue
-            attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
-                'name': file.filename,
-                'datas': base64.b64encode(content),  # bytes only
-                'type': 'binary',
-                'res_model': 'project.task',
-                'res_id': task.id,
-                'mimetype': file.content_type or 'application/octet-stream',
-            })
-            attachment_ids.append(attachment.id)
+            for file in uploaded_dump_files:
+                content = file.read()
+                _logger.info(f'content ------------------- {content}')
 
-        if attachment_ids:
-            task.with_user(SUPERUSER_ID).write({
-                'dump_attachment_ids': [(6, 0, attachment_ids)]  # works if Many2many
-            })
+                if not content:
+                    continue
+                attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
+                    'name': file.filename,
+                    'datas': base64.b64encode(content),  # bytes only
+                    'type': 'binary',
+                    'res_model': 'project.task',
+                    'res_id': task.id,
+                    'mimetype': file.content_type or 'application/octet-stream',
+                })
+                _logger.info(f'attachment ----------------------- {attachment}')
 
-        # uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
-        # garments_attachment_ids = []
-        # file_contents = []
-        # for file in uploaded_garments_files:
-        #     content = file.read()
-        #     file_contents.append((file.filename, content))
-        # for file in uploaded_garments_files:
-        #     content = file.read()
-        #     attachment = request.env['ir.attachment'].sudo().create({
-        #         'name': file.filename,
-        #         'datas': base64.b64encode(content).decode('utf-8'),
-        #         'type': 'binary',
-        #         'res_model': 'project.task',
-        #         'res_id': task.id,
-        #     })
-        #     garments_attachment_ids.append(attachment.id)
-        # if garments_attachment_ids:
-        #     task.sudo().write({
-        #         'garments_attachment_ids': [(4, att_id) for att_id in attachment_ids]
-        #     })
+                attachment_ids.append(attachment.id)
 
-        uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
-        garments_attachment_ids = []
+            if attachment_ids:
+                task.with_user(SUPERUSER_ID).write({
+                    'dump_attachment_ids': [(6, 0, attachment_ids)]  # works if Many2many
+                })
 
-        for file in uploaded_garments_files:
-            content = file.read()
-            if not content:
-                continue
-            attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
-                'name': file.filename,
-                'datas': base64.b64encode(content),
-                'type': 'binary',
-                'res_model': 'project.task',
-                'res_id': task.id,
-                'mimetype': file.content_type or 'application/octet-stream',
-            })
-            garments_attachment_ids.append(attachment.id)
+            _logger.info(f'task ----------------------- {task}')
 
-        if garments_attachment_ids:
-            task.with_user(SUPERUSER_ID).write({
-                'garments_attachment_ids': [(6, 0, garments_attachment_ids)]  # many2many
-            })
+            uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
+            garments_attachment_ids = []
 
-        return request.make_response("Task created successfully.")
+            for file in uploaded_garments_files:
+                content = file.read()
+                if not content:
+                    continue
+                attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
+                    'name': file.filename,
+                    'datas': base64.b64encode(content),
+                    'type': 'binary',
+                    'res_model': 'project.task',
+                    'res_id': task.id,
+                    'mimetype': file.content_type or 'application/octet-stream',
+                })
+                _logger.info(f'attachment ---------------------- {attachment}')
+
+                garments_attachment_ids.append(attachment.id)
+
+            if garments_attachment_ids:
+                res = task.with_user(SUPERUSER_ID).write({
+                    'garments_attachment_ids': [(6, 0, garments_attachment_ids)]  # many2many
+                })
+                _logger.info(f'res --------------------------------- {res}')
+
+
+            return request.make_response("Task created successfully.")
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            _logger.info(f'error_trace ----------------------- {error_trace}')
+            return request.make_response("Task created successfully.")
 
     @http.route(['/rss/<int:project_id>', '/rss/<int:project_id>/<int:task_id>'], type='http', auth='user', website=True)
     def custom_portal_base(self,project_id=None, task_id=None, **kw):
