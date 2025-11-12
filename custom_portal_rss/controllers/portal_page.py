@@ -77,6 +77,7 @@ class CustomPortal(http.Controller):
 
     @http.route('/rss/task/create/<int:project_id>', type='http', methods=['POST'], auth='user', csrf=False, website=True)
     def create_task(self, project_id=None, **kwargs):
+        _logger.info(f'DHUKSE ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         try:
             project = request.env['project.project'].with_user(SUPERUSER_ID).browse(project_id)
             if not project.exists():
@@ -149,6 +150,7 @@ class CustomPortal(http.Controller):
                     'res_id': task.id,
                     'mimetype': file.content_type or 'application/octet-stream',
                 })
+                request.env.cr.commit()
                 _logger.info(f'attachment ----------***********************************>>>>>><<<<<<<<<<<<<<<<<<<<<<------------- {attachment}')
 
                 attachment_ids.append(attachment.id)
@@ -176,6 +178,7 @@ class CustomPortal(http.Controller):
                     'res_id': task.id,
                     'mimetype': file.content_type or 'application/octet-stream',
                 })
+                request.env.cr.commit()
                 _logger.info(f'attachment ------------||||||||||||||||||||||||||||||||||||||||||||||||||||||||||---------- {attachment}')
 
                 garments_attachment_ids.append(attachment.id)
@@ -205,6 +208,7 @@ class CustomPortal(http.Controller):
         else:
             TaskModel = request.env['project.task'].with_user(SUPERUSER_ID)
             all_tasks =  TaskModel.search([])
+            # return request.render('custom_portal_rss.portal_base_page', {})
 
 
         countries = request.env['res.country'].with_user(SUPERUSER_ID).search([])
@@ -248,10 +252,10 @@ class CustomPortal(http.Controller):
             'brands': brands,
             'buyer': buyer,
             'project_id':project_id,
-            'pending_tasks': all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])],order='create_date desc'),
-            'pending_tasks_count': len(all_tasks.search([('stage_id.name', 'not in', ['Done','Delivered'])])),
-            'done_tasks': all_tasks.search([('stage_id.name', 'in', ['Done','Delivered'])],order='create_date desc'),
-            'done_tasks_count': len(all_tasks.search([('stage_id.name', 'in', ['Done','Delivered'])])),
+            'pending_tasks': all_tasks.search([('project_id', '=', project_id),('stage_id.name', 'not in', ['Done','Delivered'])],order='create_date desc'),
+            'pending_tasks_count': len(all_tasks.search([('project_id', '=', project_id),('stage_id.name', 'not in', ['Done','Delivered'])])),
+            'done_tasks': all_tasks.search([('project_id', '=', project_id),('stage_id.name', 'in', ['Done','Delivered'])],order='create_date desc'),
+            'done_tasks_count': len(all_tasks.search([('project_id', '=', project_id),('stage_id.name', 'in', ['Done','Delivered'])])),
         })
 
         return request.render('custom_portal_rss.portal_base_page', page_vals)
