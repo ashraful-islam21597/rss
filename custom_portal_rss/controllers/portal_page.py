@@ -82,7 +82,7 @@ class CustomPortal(http.Controller):
             project = request.env['project.project'].with_user(SUPERUSER_ID).browse(project_id)
             if not project.exists():
                 # return request.not_found()
-                return request.make_response("Task not created.")
+                return request.make_response("Invalid project.", status=400)
 
             _logger.info(f'project ------------------- {project}')
 
@@ -167,6 +167,8 @@ class CustomPortal(http.Controller):
             garments_attachment_ids = []
 
             for file in uploaded_garments_files:
+                if not file.filename:
+                    continue
                 content = file.read()
                 if not content:
                     continue
@@ -191,10 +193,15 @@ class CustomPortal(http.Controller):
 
 
             return request.make_response("Task created successfully.")
+        # except Exception as e:
+        #     error_trace = traceback.format_exc()
+        #     _logger.info(f'error_trace ----------------------- {error_trace}')
+        #     return request.make_response("Task created successfully.")
+
         except Exception as e:
-            error_trace = traceback.format_exc()
-            _logger.info(f'error_trace ----------------------- {error_trace}')
-            return request.make_response("Task created successfully.")
+            # error_trace = traceback.format_exc()
+            # _logger.error(f"❌ Error while creating task:\n{error_trace}")
+            return request.make_response("Task creation failed.", status=500)
 
     @http.route(['/rss/<int:project_id>', '/rss/<int:project_id>/<int:task_id>'], type='http', auth='user', website=True)
     def custom_portal_base(self,project_id=None, task_id=None, **kw):
