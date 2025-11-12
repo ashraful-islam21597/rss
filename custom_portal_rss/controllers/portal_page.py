@@ -1,7 +1,7 @@
 import base64
 from datetime import date, datetime, timedelta
 
-from odoo import http
+from odoo import http, SUPERUSER_ID
 from odoo.http import request
 import json
 
@@ -73,13 +73,14 @@ class CustomPortal(http.Controller):
 
 
 
-    @http.route('/rss/task/create/<int:project_id>', type='http', methods=['POST'], auth='public', csrf=False, website=True)
+    @http.route('/rss/task/create/<int:project_id>', type='http', methods=['POST'], auth='user', csrf=False, website=True)
     def create_task(self, project_id=None, **kwargs):
-        project = request.env['project.project'].sudo().browse(project_id)
+        project = request.env['project.project'].with_user(SUPERUSER_ID).browse(project_id)
         if not project.exists():
-            return request.not_found()
+            # return request.not_found()
+            return request.make_response("Task not created.")
 
-        seq = request.env['ir.sequence'].next_by_code('project.task.custom')
+        seq = request.env['ir.sequence'].with_user(SUPERUSER_ID).next_by_code('project.task.custom')
         task_identifier = f"RSS / {date.today().year} / {seq}"
 
         delivery_deadline = kwargs.get('delivery_deadline')
@@ -102,8 +103,8 @@ class CustomPortal(http.Controller):
                     date_deadline = date_obj.strftime('%Y-%m-%d %H:%M:%S')
                 except:
                     print("All date format conversions failed")
-        po = request.env['project.purchase.order'].sudo().create({'name':kwargs.get('po_number')})
-        brand = request.env['buyer.brand'].sudo().create({'name':kwargs.get('brand_id')})
+        po = request.env['project.purchase.order'].with_user(SUPERUSER_ID).create({'name':kwargs.get('po_number')})
+        brand = request.env['buyer.brand'].with_user(SUPERUSER_ID).create({'name':kwargs.get('brand_id')})
         task_vals = {
             'project_id': project.id,
             'name': kwargs.get('short_desc', task_identifier),
@@ -119,7 +120,7 @@ class CustomPortal(http.Controller):
             'note': kwargs.get('description'),
             'vendor_id' : request.env.user.partner_id.id,
         }
-        task = request.env['project.task'].sudo().create(task_vals)
+        task = request.env['project.task'].with_user(SUPERUSER_ID).create(task_vals)
 
         uploaded_dump_files = request.httprequest.files.getlist('uploaded_file_data[]')
         attachment_ids = []
@@ -129,7 +130,7 @@ class CustomPortal(http.Controller):
             content = file.read()
             if not content:
                 continue
-            attachment = request.env['ir.attachment'].sudo().create({
+            attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
                 'name': file.filename,
                 'datas': base64.b64encode(content),  # bytes only
                 'type': 'binary',
@@ -140,7 +141,7 @@ class CustomPortal(http.Controller):
             attachment_ids.append(attachment.id)
 
         if attachment_ids:
-            task.sudo().write({
+            task.with_user(SUPERUSER_ID).write({
                 'dump_attachment_ids': [(6, 0, attachment_ids)]  # works if Many2many
             })
 
@@ -172,7 +173,7 @@ class CustomPortal(http.Controller):
             content = file.read()
             if not content:
                 continue
-            attachment = request.env['ir.attachment'].sudo().create({
+            attachment = request.env['ir.attachment'].with_user(SUPERUSER_ID).create({
                 'name': file.filename,
                 'datas': base64.b64encode(content),
                 'type': 'binary',
@@ -183,7 +184,7 @@ class CustomPortal(http.Controller):
             garments_attachment_ids.append(attachment.id)
 
         if garments_attachment_ids:
-            task.sudo().write({
+            task.with_user(SUPERUSER_ID).write({
                 'garments_attachment_ids': [(6, 0, garments_attachment_ids)]  # many2many
             })
 
@@ -192,21 +193,21 @@ class CustomPortal(http.Controller):
     @http.route(['/rss/<int:project_id>', '/rss/<int:project_id>/<int:task_id>'], type='http', auth='user', website=True)
     def custom_portal_base(self,project_id=None, task_id=None, **kw):
         if project_id:
-            TaskModel = request.env['project.task'].sudo().search(
+            TaskModel = request.env['project.task'].with_user(SUPERUSER_ID).search(
                 [('project_id', '=', project_id)],
                 order='create_date desc'
             )
 
             all_tasks = TaskModel
         else:
-            TaskModel = request.env['project.task'].sudo()
+            TaskModel = request.env['project.task'].with_user(SUPERUSER_ID)
             all_tasks =  TaskModel.search([])
 
 
-        countries = request.env['res.country'].sudo().search([])
-        brands = request.env['buyer.brand'].sudo().search([])
-        po_list = request.env['project.purchase.order'].sudo().search([])
-        buyer = request.env['party.buyer'].sudo().search([])
+        countries = request.env['res.country'].with_user(SUPERUSER_ID).search([])
+        brands = request.env['buyer.brand'].with_user(SUPERUSER_ID).search([])
+        po_list = request.env['project.purchase.order'].with_user(SUPERUSER_ID).search([])
+        buyer = request.env['party.buyer'].with_user(SUPERUSER_ID).search([])
         state_selection = TaskModel._fields['state'].selection
 
 
@@ -219,7 +220,7 @@ class CustomPortal(http.Controller):
 
         if task_id:
             task_view = TaskModel.browse(task_id)
-            stages = request.env['project.task.type'].sudo().search([
+            stages = request.env['project.task.type'].with_user(SUPERUSER_ID).search([
                 ('project_ids', 'in', task_view.project_id.id)
             ])
             state_selection = TaskModel._fields['state'].selection
@@ -237,7 +238,7 @@ class CustomPortal(http.Controller):
             return request.render('custom_portal_rss.portal_form_view_page', page_vals)
 
 
-        stages = request.env['project.task.type'].sudo().search([])
+        stages = request.env['project.task.type'].with_user(SUPERUSER_ID).search([])
         page_vals.update({
             'task_list': all_tasks,
             'stages': stages,
