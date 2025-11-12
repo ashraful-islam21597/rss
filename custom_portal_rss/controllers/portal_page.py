@@ -149,7 +149,7 @@ class CustomPortal(http.Controller):
                     'res_id': task.id,
                     'mimetype': file.content_type or 'application/octet-stream',
                 })
-                _logger.info(f'attachment ----------------------- {attachment}')
+                _logger.info(f'attachment ----------***********************************>>>>>><<<<<<<<<<<<<<<<<<<<<<------------- {attachment}')
 
                 attachment_ids.append(attachment.id)
 
@@ -161,6 +161,7 @@ class CustomPortal(http.Controller):
             _logger.info(f'task ----------------------- {task}')
 
             uploaded_garments_files = request.httprequest.files.getlist('uploaded_garments_file_data[]')
+            _logger.info(f'task ----------------------- {uploaded_garments_files}')
             garments_attachment_ids = []
 
             for file in uploaded_garments_files:
@@ -175,7 +176,7 @@ class CustomPortal(http.Controller):
                     'res_id': task.id,
                     'mimetype': file.content_type or 'application/octet-stream',
                 })
-                _logger.info(f'attachment ---------------------- {attachment}')
+                _logger.info(f'attachment ------------||||||||||||||||||||||||||||||||||||||||||||||||||||||||||---------- {attachment}')
 
                 garments_attachment_ids.append(attachment.id)
 
